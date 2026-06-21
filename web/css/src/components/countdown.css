@@ -1,17 +1,16 @@
-.tu-countdown-list { display: flex; flex-direction: column; gap: 0.5rem; }
-.tu-countdown-item {
-    display: flex; align-items: center; gap: 0.75rem;
-    padding: 0.75rem;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 0;
+/* === countdown === */
+.tu-cd-list { display: flex; flex-direction: column; gap: 0.4rem; }
+.tu-cd-item {
+    display: flex; align-items: center; gap: 0.6rem;
+    padding: 0.5rem 0.6rem;
+    background: var(--cell-bg); border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm);
 }
-.tu-countdown-days {
-    font-size: 1.5rem; font-weight: 700; color: var(--accent);
-    min-width: 3rem; text-align: center;
-    font-variant-numeric: tabular-nums;
+.tu-cd-days {
+    font-size: 1.3rem; font-weight: 700; color: var(--accent);
+    min-width: 2.5rem; text-align: center; font-variant-numeric: tabular-nums;
 }
-.tu-countdown-info { flex: 1; }
-.tu-countdown-title { font-size: 0.9rem; font-weight: 500; }
-.tu-countdown-date { font-size: 0.72rem; color: var(--text-tertiary); }
-.tu-countdown-item.urgent .tu-countdown-days { color: #ff3b30; }
+.tu-cd-info { flex: 1; }
+.tu-cd-title { font-size: 0.82rem; font-weight: 500; }
+.tu-cd-date { font-size: 0.68rem; color: var(--text-tertiary); }
+.tu-cd-item.urgent .tu-cd-days { color: #ff3b30; }

@@ -4,27 +4,24 @@
 
 [![CI](https://github.com/lost-clouds/simple-daily-termux/actions/workflows/ci.yml/badge.svg)](https://github.com/lost-clouds/simple-daily-termux/actions/workflows/ci.yml)
 
-A lightweight personal time management application with Go backend and vanilla JavaScript SPA frontend. Integrates **TODO list**, **Pomodoro timer**, **Diary+Ledger**, **Calendar**, and **Countdown** into a single binary. Designed to work alongside [Blog-termux](https://github.com/lost-clouds/Blog-termux) via nginx reverse proxy, adding a 9th dashboard card that shows daily summary data.
+A lightweight personal time management application — Go backend + vanilla JavaScript SPA frontend, compiled into a single binary. Provides **TODO list**, **Pomodoro timer**, **Diary + Ledger**, **Calendar aggregation**, and **Countdown** modules. Integrates with [Blog-termux](https://github.com/lost-clouds/Blog-termux) via nginx reverse proxy, adding a daily summary card to the dashboard.
 
-> Built for Termux on Android. Pure Go (zero CGO), single binary deployment, <20MB footprint.
+> Built for Termux on Android. Pure Go (zero CGO), single binary deployment, ~15MB footprint.
 
 ---
 
 ## Table of Contents
 
 - [Quick Start](#quick-start)
-- [Directory Structure](#directory-structure)
 - [Architecture](#architecture)
 - [Module Reference](#module-reference)
 - [Deployment Guide](#deployment-guide)
-  - [1. Requirements](#1-requirements)
-  - [2. Download Pre-built Binary](#2-download-pre-built-binary)
-  - [3. Build from Source](#3-build-from-source)
-  - [4. Configure](#4-configure)
-  - [5. Run](#5-run)
-  - [6. Integration with Blog-termux](#6-integration-with-blog-termux)
+  - [Standalone Deployment](#standalone-deployment)
+  - [Integration with Blog-termux](#integration-with-blog-termux)
 - [API Reference](#api-reference)
+- [Configuration](#configuration)
 - [Usage](#usage)
+- [Development](#development)
 - [FAQ](#faq)
 
 ---
@@ -34,379 +31,262 @@ A lightweight personal time management application with Go backend and vanilla J
 **Option A — Download pre-built binary (recommended):**
 
 ```bash
-# Download the latest release for your platform
 # linux-amd64 / linux-arm64 / linux-armv7 available
 curl -sSLO https://github.com/lost-clouds/simple-daily-termux/releases/latest/download/simple-daily-termux-linux-arm64.tar.gz
 tar -xzf simple-daily-termux-linux-arm64.tar.gz
-# Contains: simple-daily-termux-linux-arm64, config.example.json, smoke.sh
 ```
 
-**Option B — Build from source:**
+**Option B — Build from source (Go 1.22+):**
 
 ```bash
-# 1. Clone
-git clone https://github.com/lost-clouds/simple-daily-termux.git ~/simple-daily-termux
-cd ~/simple-daily-termux
-
-# 2. Build (Go 1.22+)
+git clone https://github.com/lost-clouds/simple-daily-termux.git
+cd simple-daily-termux
+bash web/css/build.sh    # Build CSS
 go build -o simple-daily-termux .
-
-# 3. Build CSS
-bash web/css/build.sh
 ```
 
-**After install:**
+**Run:**
 
 ```bash
-# 4. Create config
 cp config.example.json config.json
-# Edit if needed (default: SQLite at ./data/daily.db, port 8090)
-
-# 5. Run
+# Edit config.json if needed
 ./simple-daily-termux config.json
-# Listening on http://127.0.0.1:8090
+# → http://127.0.0.1:8090
 ```
 
-Run the smoke test:
+**Verify:**
 
 ```bash
-bash scripts/smoke.sh
-# All 12 checks should PASS
+bash scripts/smoke.sh          # 12 API endpoint checks
+# All PASS → ready to use
 ```
 
-> **Version**: Current release — [v0.0.1](https://github.com/lost-clouds/simple-daily-termux/releases/tag/v0.0.1)
-
----
-
-## Directory Structure
-
-```
-simple-daily-termux/
-├── main.go                          # Entry point: config → store → services → handlers → server
-├── go.mod / go.sum                  # Go module (2 deps: sqlite + mysql drivers)
-├── config.json / config.example.json
-├── internal/
-│   ├── config/config.go             # Config struct + Load() + Validate()
-│   ├── idgen/idgen.go               # App-level ID generation (crypto/rand)
-│   ├── httputil/response.go         # Unified JSON response envelope
-│   ├── store/sqlstore/
-│   │   ├── store.go                 # Store interface + all Repository implementations
-│   │   ├── sqlite.go                # SQLite init (WAL mode, pure Go)
-│   │   ├── mysql.go                 # MySQL init
-│   │   └── migrations.go            # DDL (SQLite + MySQL dual syntax)
-│   ├── todo/        {model, service, handler}.go
-│   ├── countdown/   {model, service, handler}.go
-│   ├── pomodoro/    {model, service, handler}.go
-│   ├── diary/       {model, service, handler, ledgerparser}.go
-│   ├── ledger/      {model, service, handler}.go
-│   ├── calendar/    {model, service, handler}.go
-│   └── summary/     {service, handler}.go
-├── web/
-│   ├── index.html                    # Standalone SPA (5 tabs)
-│   ├── blog-termux-index.html        # Blog-termux integration index (9th dashboard card)
-│   ├── css/
-│   │   ├── build.sh                  # CSS build script (cat merge)
-│   │   ├── style.css                 # Built output (go:embed)
-│   │   └── src/                      # CSS source (modular)
-│   │       ├── variables.css         #   CSS custom properties (same palette as Blog-termux)
-│   │       ├── base.css / layout.css / responsive.css
-│   │       ├── themes/dark.css
-│   │       └── components/*.css      #   8 component stylesheets
-│   ├── js/                           # ES Modules (zero bundler)
-│   │   ├── main.js → app.js          #   Entry → Main controller
-│   │   ├── constants.js              #   API path constants
-│   │   ├── utils.js                  #   Shared utilities (esc, etc.)
-│   │   ├── theme.js                  #   Theme manager
-│   │   ├── calendar.js / todo.js / countdown.js
-│   │   ├── pomodoro.js / diary.js / ledger.js
-│   │   └── update-widget.js          #   Blog-termux integration card
-│   └── lib/marked.min.js             # Markdown parser
-├── scripts/
-│   ├── start.sh / stop.sh            # Process management (PID file)
-│   └── smoke.sh                      # curl health check
-└── plan.md                           # Design plan
-```
+> Current release: [v0.0.2](https://github.com/lost-clouds/simple-daily-termux/releases/tag/v0.0.2)
 
 ---
 
 ## Architecture
 
-### Overall Layout
+### Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Language | Go 1.22+ |
+| HTTP | `net/http` (zero framework, `http.ServeMux` pattern routing) |
+| Database | SQLite (`modernc.org/sqlite`, pure Go, zero CGO) / MySQL optional |
+| Frontend | Vanilla ES Modules (no bundler), CSS custom properties (cat merge), `marked.js` |
+| Assets | `go:embed` — frontend compiled into binary |
+| Process | PID file + `start.sh` / `stop.sh` (no systemd required) |
+
+### Directory Structure
 
 ```
-simple-daily-termux (Go binary)
-  │
-  ├── main.go ── dependency injection tree
-  │   ├── config.Load("config.json")
-  │   ├── sqlstore.NewSQLite()          → Store
-  │   ├── ledger.NewService()           → Ledger + Settings repo
-  │   ├── countdown.NewService()        → Countdown repo
-  │   ├── todo.NewService(_, countSvc)  → Todo repo + countdown linkage
-  │   ├── pomodoro.NewService()         → Pomodoro repo
-  │   ├── diary.NewService(_, ledgerSvc)→ Diary repo + ledger linkage
-  │   ├── calendar.NewService(...)      → 4 repos aggregated
-  │   └── summary.NewService(...)       → Ledger + Countdown + Pomodoro
-  │
-  ├── http.ServeMux (Go 1.22 pattern routing)
-  │   ├── /api/todos, /api/countdown, /api/pomodoro, ...
-  │   ├── /api/summary                  → Blog-termux integration endpoint
-  │   └── /                             → embedded SPA (go:embed)
-  │
-  └── graceful shutdown (SIGINT/SIGTERM → 5s timeout)
+simple-daily-termux/
+├── main.go                     # Entry point — DI tree, route registration, graceful shutdown
+├── config.json / config.example.json
+├── internal/
+│   ├── config/config.go        # Config loading + validation
+│   ├── idgen/idgen.go          # crypto/rand ID generation
+│   ├── httputil/response.go    # Unified JSON envelope
+│   ├── store/sqlstore/         # SQLite/MySQL implementation (Store interface + migrations)
+│   ├── todo/       {model, service, handler}.go
+│   ├── countdown/  {model, service, handler}.go
+│   ├── pomodoro/   {model, service, handler}.go
+│   ├── diary/      {model, service, handler, ledgerparser}.go
+│   ├── ledger/     {model, service, handler}.go
+│   ├── calendar/   {model, service, handler}.go
+│   └── summary/    {service, handler}.go
+├── web/                         # go:embed → compiled into binary
+│   ├── index.html               # SPA (6 tabs: home, calendar, todo, pomodoro, diary, countdown)
+│   ├── blog-termux-index.html   # Blog-termux integration HTML (9th dashboard card)
+│   ├── css/  src/*.css + build.sh + style.css
+│   ├── js/   app.js + 7 modules + theme.js + utils.js + update-widget.js
+│   └── lib/  marked.min.js
+├── example/                     # Nginx config templates
+│   ├── standalone.conf          # Independent deployment
+│   └── integration.conf         # Blog-termux integration snippet
+├── scripts/
+│   ├── start.sh / stop.sh       # Process management
+│   └── smoke.sh                 # curl health check
+└── .github/workflows/
+    ├── ci.yml                   # Build + smoke test on push/PR
+    └── release.yml              # Cross-compile + GitHub Release on tag
 ```
 
-### Frontend Tab Structure
-
-```
-index.html (SPA)
-  │
-  ├─ header ─── brand title + theme toggle (🌓)
-  │
-  ├─ tab-bar ── [📅Calendar] [✅TODO] [⏱️Pomodoro] [📝Diary] [⏳Countdown]
-  │              PC/tablet top | mobile bottom-fixed
-  │
-  └─ content area (5 sections, 1 visible at a time)
-      ├── #sec-calendar     Month grid + events + todo deadlines + countdown targets
-      ├── #sec-todo         Task list with filters, priority, deadline linkage
-      ├── #sec-pomodoro     Countdown timer + today's focus minutes
-      ├── #sec-diary        Markdown editor + ledger block embedding + monthly summary
-      └── #sec-countdown    Countdown list (manual + todo-derived)
-```
-
-### Module Dependency Graph
+### Dependency Graph
 
 ```
 main.go
   ├── config.Load()
-  ├── sqlstore.NewSQLite() / NewMySQL()
+  ├── sqlstore.NewSQLite() / NewMySQL()          → Store
   ├── ledger.NewService(st.Ledgers(), st.Settings())
   ├── countdown.NewService(st.Countdowns())
-  ├── todo.NewService(st.Todos(), countSvc)          ← injects countdown for deadline sync
+  ├── todo.NewService(st.Todos(), countSvc)       ← injects countdown for deadline sync
   ├── pomodoro.NewService(st.Pomodoros())
-  ├── diary.NewService(st.Diaries(), ledgerSvc)       ← injects ledger for block parsing
+  ├── diary.NewService(st.Diaries(), ledgerSvc)   ← injects ledger for code block parsing
   ├── calendar.NewService(st.Calendars(), st.Todos(), st.Countdowns(), st.Diaries())
   ├── summary.NewService(ledgerSvc, countSvc, pomoSvc, timezone)
-  └── http.ServeMux (route registration + middleware)
-```
-
-**Key design**: All dependencies are explicitly injected via constructor parameters in `main.go`. No package-level mutable state. No global service locators. Go's exported/unexported visibility enforces module boundaries at compile time.
-
-### Data Flow
-
-```
-Client (browser)
-  │  GET /api/todos, POST /api/ledger, PUT /api/diary/2026-06-21, ...
-  ↓
-Go HTTP handlers → Service layer (business logic) → Repository interface → SQLStore
-  │                                                    ↑
-  │  Todo ↔ Countdown linkage                          │
-  │  Diary ↔ Ledger linkage (markdown code block)      │
-  │  Calendar aggregation (4 data sources)              │
-  │  Summary aggregation (for Blog-termux card)         │
-  ↓
-JSON response: {"ok": true, "data": {...}}
+  └── http.ServeMux → all handlers register their own routes
 ```
 
 ---
 
 ## Module Reference
 
-### todo — TODO List with Deadline Linkage
+### Home Page
 
-| | |
-|---|---|
-| Package | `internal/todo/` |
-| Repository | `todo.Repository` (defined in model.go) |
-| Service | `TodoService{repo, countSvc}` — injects `*countdown.Service` |
-| API | `GET/POST /api/todos`, `GET/PUT/DELETE /api/todos/{id}` |
+Three-panel layout: left column (today's TODOs + diary preview), right column (calendar grid with countdown event previews). Clicking a calendar date loads that day's TODOs and diary. Navigation bar under calendar.
 
-**Linkage logic**: When a todo is created/updated with a `deadline_at`, a countdown event is auto-created. When the deadline is cleared or the todo is deleted/completed, the countdown event is removed. The countdown list shows both manual and todo-derived events interleaved.
+- Today's focus/rest minutes shown below TODO panel
+- Today's income/expense shown below diary panel
+- Calendar cells display countdown event titles (truncated with `…`)
+- Daily/long-term tasks auto-instantiated via `POST /api/todos/ensure-daily`
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `title` | string | Task name |
-| `status` | pending / doing / done | Current state |
-| `priority` | 0-3 | Priority level |
-| `deadline_at` | RFC3339 / null | Drives countdown linkage |
-
----
-
-### countdown — Countdown Events
-
-| | |
-|---|---|
-| Package | `internal/countdown/` |
-| Repository | `countdown.Repository` |
-| Service | `CountdownService{repo}` |
-| API | `GET/POST /api/countdown`, `DELETE /api/countdown/{id}` |
-
-`days_left` is computed at read time (UTC day boundaries). Supports two sources: `manual` (user-created) and `todo` (auto-derived from todo deadlines). Both sources appear in the same list.
-
----
-
-### pomodoro — Focus Timer
-
-| | |
-|---|---|
-| Package | `internal/pomodoro/` |
-| Repository | `pomodoro.Repository` |
-| Service | `PomodoroService{repo}` |
-| API | `POST /api/pomodoro/start`, `POST /api/pomodoro/{id}/finish`, `GET /api/pomodoro/today`, `GET /api/pomodoro` |
-
-Session status: `running` → `completed` / `aborted`. `actual_minutes` is computed from `ended_at - started_at`. Today's focus time respects the configured timezone.
+### TODO
 
 | Field | Description |
 |-------|-------------|
-| `planned_minutes` | Target duration (default 25) |
-| `actual_minutes` | Real elapsed time |
-| `linked_todo_id` | Optional task association |
+| `task_type` | `daily` (auto-create daily) / `long_term` (auto-create until deadline) / `one_time` (manual) |
+| `priority` | Auto-calculated: I (red, <14d) / II (orange, 14-30d) / III (yellow, 30-60d) / IV (blue, ≥60d) |
+| `deadline_at` | Drives countdown linkage — setting/clearing auto-syncs countdown events |
 
----
+### Pomodoro
 
-### diary — Markdown Journal
+- Large countdown timer (5rem desktop, responsive scaling)
+- Start focus session → countdown → completion overlay (frosted blue card) → click to start rest timer
+- Separate focus/rest time accumulation
+- Background timer continues when switching tabs (no session abort)
 
-| | |
-|---|---|
-| Package | `internal/diary/` |
-| Repository | `diary.Repository` |
-| Service | `DiaryService{repo, ledgerSvc}` — injects `*ledger.Service` |
-| API | `GET /api/diary/{date}`, `PUT /api/diary/{date}`, `GET /api/diary?month=YYYY-MM` |
+### Diary + Ledger
 
-**Ledger linkage**: On save, scans `content_md` for `` ```ledger `` code blocks, deletes old diary-sourced ledger entries, and inserts new ones. The process is idempotent — re-saving the same diary doesn't duplicate ledger entries. If all ledger blocks are removed, associated entries are cleaned up.
+- PC: left-right layout (Markdown editor | rendered preview)
+- Markdown via `marked.js` with custom ledger block rendering
+- Ledger blocks in diary (` ```ledger ... ``` `) auto-sync to ledger on save (idempotent)
+- Standalone ledger entry: category dropdown (salary/dining/transport/shopping/utilities/side-income/other)
+- Monthly summary: expense, income, balance, cumulative savings
 
-````markdown
-```ledger
-type: expense
-amount: 35.5
-category: 餐饮
-note: 午饭
-```
-````
+### Calendar
 
-Markdown rendering uses `marked.js` (with a pure-JS fallback). Ledger blocks are rendered as styled transaction cards instead of code blocks.
+- Month grid with countdown events and todo deadlines displayed per cell
+- Diary dates marked with blue dots
+- Full-page calendar view with events list
 
----
+### Countdown
 
-### ledger — Personal Accounting
-
-| | |
-|---|---|
-| Package | `internal/ledger/` |
-| Repository | `ledger.Repository` + `SettingsRepository` |
-| Service | `LedgerService{repo, settings}` |
-| API | `GET/POST /api/ledger?month=`, `GET /api/ledger/summary?month=`, `DELETE /api/ledger/{id}` |
-
-**Money stored as integer cents** to avoid floating-point errors.
-
-| Metric | Formula |
-|--------|---------|
-| Monthly expense | `SUM(amount_cents) WHERE type='expense'` |
-| Monthly income | `SUM(amount_cents) WHERE type='income'` |
-| Monthly balance | income − expense |
-| Savings | `opening_savings_cents` + cumulative sum of all historical monthly balances |
-
-`opening_savings_cents` is set once via the settings KV store, then savings roll forward automatically.
-
----
-
-### calendar — Aggregated Month View
-
-| | |
-|---|---|
-| Package | `internal/calendar/` |
-| Repository | `calendar.Repository` + 3 others (todo, countdown, diary) |
-| Service | `CalendarService{calRepo, todoRepo, countRepo, diaryRepo}` |
-| API | `GET /api/calendar?month=YYYY-MM`, `POST/PUT/DELETE /api/calendar/events`, `GET/PUT /api/calendar/events/{id}` |
-
-Aggregates 4 data sources in a single response:
-- **Calendar events** — standalone scheduled events
-- **Todo deadlines** — todos with `deadline_at` in the target month
-- **Countdown targets** — countdown events targeting the month
-- **Diary dates** — days with diary entries (for calendar grid dots)
-
----
-
-### summary — Blog-termux Integration Card
-
-| | |
-|---|---|
-| Package | `internal/summary/` |
-| Service | `SummaryService{ledgerSvc, countSvc, pomoSvc, timezone}` |
-| API | `GET /api/summary` |
-
-Lightweight endpoint designed for the 9th dashboard card in Blog-termux:
-
-```json
-{
-  "calendar": {"month": "2026-06", "today": "2026-06-21"},
-  "ledger": {"expense": 1234.50, "income": 6000.00, "balance": 4765.50, "savings": 88234.00},
-  "countdown": [{"title": "Project deadline", "days_left": 193}],
-  "focus_today_minutes": 95
-}
-```
+- Manual countdown events + auto-derived from todo deadlines
+- `days_left` computed at read time
+- Urgent styling (red) for ≤7 days
 
 ---
 
 ## Deployment Guide
 
-### 1. Requirements
+### Standalone Deployment
 
-| Component | Purpose | Notes |
-|-----------|---------|-------|
-| Go 1.22+ | Build | Required for `http.ServeMux` pattern routing |
-| SQLite | Default database | Built-in via `modernc.org/sqlite` (pure Go, no CGO) |
-| MySQL (optional) | Alternative database | Only when `config.json` `driver=mysql` |
-| Nginx (optional) | Reverse proxy | Only for Blog-termux integration |
-
-> **NOT required**: Node.js, Python, PHP, Docker, C/C++ toolchain, GPU.
-
-### 2. Download Pre-built Binary
-
-Pre-built binaries are available on the [Releases](https://github.com/lost-clouds/simple-daily-termux/releases) page.
-
-| Platform | Architecture | File |
-|----------|-------------|------|
-| Linux | amd64 (x86_64) | `simple-daily-termux-linux-amd64.tar.gz` |
-| Linux | arm64 (aarch64) | `simple-daily-termux-linux-arm64.tar.gz` |
-| Linux | armv7 (arm32) | `simple-daily-termux-linux-armv7.tar.gz` |
-
-Each archive contains the compiled binary, `config.example.json`, and `smoke.sh`. Verify the download with the accompanying `.sha256` file.
+**1. Build:**
 
 ```bash
-curl -sSLO https://github.com/lost-clouds/simple-daily-termux/releases/latest/download/simple-daily-termux-linux-arm64.tar.gz
-curl -sSLO https://github.com/lost-clouds/simple-daily-termux/releases/latest/download/simple-daily-termux-linux-arm64.tar.gz.sha256
-sha256sum -c simple-daily-termux-linux-arm64.tar.gz.sha256
-tar -xzf simple-daily-termux-linux-arm64.tar.gz
-```
-
-### 3. Build from Source
-
-```bash
-cd ~/simple-daily-termux
-
-# Download Go dependencies (requires network)
-go mod tidy
-
-# Build CSS
+git clone https://github.com/lost-clouds/simple-daily-termux.git
+cd simple-daily-termux
 bash web/css/build.sh
-
-# Build
 go build -o simple-daily-termux .
-
-# Verify
-./simple-daily-termux --help  # (accepts config path as argument)
 ```
 
-Cross-compilation (zero CGO, no toolchain needed):
+**2. Configure:**
 
 ```bash
-GOOS=linux GOARCH=arm64 go build -o simple-daily-termux .
-GOOS=linux GOARCH=amd64 go build -o simple-daily-termux .
+cp config.example.json config.json
 ```
 
-### 4. Configure
+Default: SQLite at `./data/daily.db`, listen `127.0.0.1:8090`.
 
-Copy and edit `config.json`:
+**3. Run:**
+
+```bash
+# Manual
+./simple-daily-termux config.json
+
+# Daemon
+bash scripts/start.sh
+bash scripts/stop.sh
+```
+
+**4. Smoke test:**
+
+```bash
+bash scripts/smoke.sh
+```
+
+**5. (Optional) Reverse proxy with nginx:**
+
+See [example/standalone.conf](example/standalone.conf).
+
+### Integration with Blog-termux
+
+**Step 1 — Deploy simple-daily-termux** (see standalone deployment above).
+
+**Step 2 — Add nginx proxy rules:**
+
+Copy the content of [example/integration.conf](example/integration.conf) into Blog-termux's nginx `server {}` block. This adds two locations:
+
+- `/update/` → proxies to the Go SPA
+- `/api/summary` → data endpoint for the dashboard card
+
+**Step 3 — Deploy the integration files:**
+
+```bash
+cp web/blog-termux-index.html /path/to/Blog-termux/index.html
+cp web/js/update-widget.js /path/to/Blog-termux/js/update-widget.js
+```
+
+**Step 4 — Reload nginx:**
+
+```bash
+nginx -s reload
+```
+
+The Blog-termux dashboard now shows a "Daily Overview" card as the first card in the grid. Clicking it opens the full SPA in a new tab.
+
+---
+
+## API Reference
+
+All responses: `{"ok": true, "data": ...}` or `{"ok": false, "error": "..."}`
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/todos` | List (`?status=&task_type=&entry_date=`) |
+| POST | `/api/todos` | Create |
+| GET | `/api/todos/{id}` | Get by ID |
+| PUT | `/api/todos/{id}` | Update |
+| DELETE | `/api/todos/{id}` | Delete |
+| POST | `/api/todos/ensure-daily` | Auto-instantiate daily/long-term tasks for a date |
+| GET | `/api/countdown` | List all |
+| POST | `/api/countdown` | Create manual |
+| DELETE | `/api/countdown/{id}` | Delete |
+| POST | `/api/pomodoro/start` | Start focus session |
+| POST | `/api/pomodoro/start-rest` | Start rest session |
+| POST | `/api/pomodoro/{id}/finish` | Finish (`{"status":"completed\|aborted"}`) |
+| GET | `/api/pomodoro/today` | Today's focus + rest minutes |
+| GET | `/api/diary/{date}` | Get entry (date=YYYY-MM-DD) |
+| PUT | `/api/diary/{date}` | Save (triggers ledger sync) |
+| GET | `/api/diary` | List month (`?month=YYYY-MM`) |
+| GET | `/api/ledger` | List (`?month=YYYY-MM`) |
+| GET | `/api/ledger/{id}` | Get by ID |
+| GET | `/api/ledger/summary` | Monthly summary (`?month=YYYY-MM`) |
+| POST | `/api/ledger` | Create entry |
+| DELETE | `/api/ledger/{id}` | Delete |
+| PUT | `/api/settings/{key}` | Set KV (`{"value":"..."}`) |
+| GET | `/api/calendar` | Aggregated month view (`?month=YYYY-MM`) |
+| POST | `/api/calendar/events` | Create event |
+| PUT | `/api/calendar/events/{id}` | Update event |
+| DELETE | `/api/calendar/events/{id}` | Delete event |
+| GET | `/api/summary` | Integration card data |
+| GET | `/api/health` | Health check |
+
+---
+
+## Configuration
 
 ```json
 {
@@ -417,6 +297,7 @@ Copy and edit `config.json`:
   "database": {
     "driver": "sqlite",
     "sqlite": { "path": "./data/daily.db" },
+    "mysql": { "dsn": "user:pass@tcp(host:3306)/daily?parseTime=true" },
     "timezone": "Local"
   }
 }
@@ -425,107 +306,10 @@ Copy and edit `config.json`:
 | Field | Default | Description |
 |-------|---------|-------------|
 | `server.addr` | `127.0.0.1:8090` | Listen address |
-| `server.cors` | `false` | Enable CORS headers (for dev) |
+| `server.cors` | `false` | Enable CORS headers (dev only) |
 | `database.driver` | `sqlite` | `sqlite` or `mysql` |
-| `database.sqlite.path` | `./data/daily.db` | SQLite database file |
-| `database.mysql.dsn` | — | MySQL DSN (when `driver=mysql`) |
+| `database.sqlite.path` | `./data/daily.db` | SQLite file path |
 | `database.timezone` | `Local` | Timezone for pomodoro "today" calculations |
-
-### 5. Run
-
-**Manual start:**
-
-```bash
-./simple-daily-termux config.json
-# Listening on 127.0.0.1:8090
-```
-
-**Daemon (via scripts):**
-
-```bash
-bash scripts/start.sh
-bash scripts/stop.sh
-```
-
-**Smoke test:**
-
-```bash
-bash scripts/smoke.sh
-# All 12 checks should PASS
-```
-
-Add to crontab for auto-restart:
-
-```bash
-# crontab -e
-# */5 * * * * cd ~/simple-daily-termux && bash scripts/start.sh
-```
-
-### 6. Integration with Blog-termux
-
-**Step 1 — Add nginx proxy rules**
-
-Add to Blog-termux's nginx config:
-
-```nginx
-location /update/ {
-    proxy_pass http://127.0.0.1:8090/;
-    proxy_set_header Host $host;
-}
-location /api/summary {
-    proxy_pass http://127.0.0.1:8090/api/summary;
-    add_header Cache-Control "no-store";
-}
-```
-
-**Step 2 — Deploy the rewritten index.html**
-
-```bash
-cp web/blog-termux-index.html /path/to/Blog-termux/index.html
-cp web/js/update-widget.js   /path/to/Blog-termux/js/update-widget.js
-```
-
-**Step 3 — Reload nginx**
-
-```bash
-nginx -s reload
-```
-
-The Blog-termux dashboard now shows a 9th card ("Daily Overview") with live data from simple-daily-termux. Clicking the card navigates to the full SPA.
-
----
-
-## API Reference
-
-All responses use the unified envelope format: `{"ok": true, "data": ...}` or `{"ok": false, "error": "..."}`.
-
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/todos` | List todos (`?status=&has_deadline=`) |
-| POST | `/api/todos` | Create todo |
-| GET | `/api/todos/{id}` | Get todo by ID |
-| PUT | `/api/todos/{id}` | Update todo |
-| DELETE | `/api/todos/{id}` | Delete todo |
-| GET | `/api/countdown` | List all countdown events |
-| POST | `/api/countdown` | Create manual countdown |
-| DELETE | `/api/countdown/{id}` | Delete countdown |
-| POST | `/api/pomodoro/start` | Start pomodoro session |
-| POST | `/api/pomodoro/{id}/finish` | Finish session (`{"status":"completed\|aborted"}`) |
-| GET | `/api/pomodoro/today` | Today's total focus minutes |
-| GET | `/api/pomodoro` | List sessions (`?from=&to=`) |
-| GET | `/api/diary/{date}` | Get diary entry (`date=YYYY-MM-DD`) |
-| PUT | `/api/diary/{date}` | Save diary entry (triggers ledger sync) |
-| GET | `/api/diary` | List month entries (`?month=YYYY-MM`) |
-| GET | `/api/ledger` | List ledger entries (`?month=YYYY-MM`) |
-| GET | `/api/ledger/summary` | Monthly summary (`?month=YYYY-MM`) |
-| POST | `/api/ledger` | Create ledger entry |
-| DELETE | `/api/ledger/{id}` | Delete ledger entry |
-| GET | `/api/calendar` | Aggregated month view (`?month=YYYY-MM`) |
-| POST | `/api/calendar/events` | Create calendar event |
-| PUT | `/api/calendar/events/{id}` | Update calendar event |
-| DELETE | `/api/calendar/events/{id}` | Delete calendar event |
-| GET | `/api/summary` | Integration card data |
-| GET | `/api/health` | Health check |
 
 ---
 
@@ -533,92 +317,77 @@ All responses use the unified envelope format: `{"ok": true, "data": ...}` or `{
 
 | Action | How |
 |--------|-----|
-| **Switch tab** | PC/tablet: click top tab bar. Mobile: tap bottom nav bar |
-| **Dark mode** | Click 🌓 button, preference auto-saved |
-| **Create todo** | TODO tab → "+ New Task" → fill form → Save |
-| **Set deadline** | Add deadline in todo form → auto-appears in Countdown |
-| **Start pomodoro** | Pomodoro tab → choose duration → Start |
-| **Write diary** | Diary tab → pick date → write Markdown → "Insert Ledger" for accounting |
-| **View ledger** | Diary tab → monthly summary + entry list at bottom |
-| **Browse calendar** | Calendar tab → month grid with diary dots + events + deadlines |
-| **Manage countdowns** | Countdown tab → manual entries + auto-generated from todos |
-| **Set opening savings** | Ledger → need to set `opening_savings_cents` via settings (API) |
+| **Home** | Calendar + today's TODOs + diary preview. Click calendar date → loads that day |
+| **Create daily task** | TODO tab → type "daily" → auto-appears every day |
+| **Create long-term task** | TODO tab → type "long_term" + deadline → daily instances until deadline |
+| **Start pomodoro** | Pomodoro tab → choose duration → Start. Completion overlay → click to start rest |
+| **Write diary** | Diary tab → pick date → write Markdown. Ledger blocks auto-sync |
+| **Add ledger entry** | Diary tab → "+ 记账" → select category from dropdown → enter amount → Save |
+| **Set opening savings** | `curl -X PUT http://127.0.0.1:8090/api/settings/opening_savings_cents -d '{"value":"5000000"}'` |
+| **Dark mode** | Click 🌓 button |
+
+---
+
+## Development
+
+```bash
+# Build CSS (after editing src/*.css)
+bash web/css/build.sh
+
+# Build binary
+go build -o simple-daily-termux .
+
+# Cross-compile (zero CGO)
+GOOS=linux GOARCH=arm64 go build -o simple-daily-termux .
+
+# Run tests
+bash scripts/smoke.sh
+
+# CI (on push/PR)
+# See .github/workflows/ci.yml
+```
+
+### Design Principles
+
+- **Zero package-level mutable state** in Go — all deps injected via constructors, exported/unexported visibility enforces boundaries
+- **ES Module scope isolation** — every JS file is a separate module, no global namespace pollution
+- **CSS tu- prefix** — all custom classes prefixed to avoid conflicts when embedded in Blog-termux
+- **Money in integer cents** — `amount_cents int64`, converted on the frontend boundary
 
 ---
 
 ## FAQ
 
-### Q: How to switch from SQLite to MySQL?
-
-Edit `config.json`:
-
-```json
-{
-  "database": {
-    "driver": "mysql",
-    "mysql": { "dsn": "user:pass@tcp(127.0.0.1:3306)/daily?parseTime=true" }
-  }
-}
-```
-
-Restart the server. Tables are auto-created on startup. Existing SQLite data must be migrated manually.
-
-### Q: Where is the database file?
-
-Default: `./data/daily.db`. Change via `config.json` → `database.sqlite.path`.
-
-### Q: How to set the opening savings balance?
-
-The `opening_savings_cents` setting is stored in the `settings` table. Set it via the API:
+**Q: How to set the opening savings balance?**
 
 ```bash
-# Set opening savings to ¥50,000.00 (5,000,000 cents)
-# This requires a settings endpoint — currently set via direct DB or future settings UI
+curl -X PUT http://127.0.0.1:8090/api/settings/opening_savings_cents \
+  -H 'Content-Type: application/json' \
+  -d '{"value":"5000000"}'
+# 5,000,000 cents = ¥50,000.00
 ```
 
-### Q: Pomodoro timer inaccurate after switching tabs?
+**Q: Daily tasks don't appear?**
 
-The frontend timer uses `setInterval` which browsers throttle in background tabs. The timer pauses automatically when switching away from the Pomodoro tab. If you need exact timing, use the server-side `started_at`/`ended_at` values.
+Daily/long-term tasks are instantiated when the home page loads (via `POST /api/todos/ensure-daily`). If they don't appear, check the browser console for errors.
 
-### Q: Multiple ledger entries after re-saving a diary?
+**Q: Switch from SQLite to MySQL?**
 
-No. The diary save logic is idempotent — old diary-sourced entries are deleted before new ones are inserted.
+Edit `config.json`: set `driver` to `mysql` and provide `mysql.dsn`. Restart. Tables are auto-created. Existing SQLite data must be migrated manually.
 
-### Q: Calendar shows empty?
+**Q: Blog-termux dashboard card shows "--"?**
 
-Make sure you have data in at least one of: calendar events, todo deadlines, countdown events, or diary entries. The calendar module aggregates from all four sources.
-
-### Q: Blog-termux dashboard card shows "--"?
-
-Check:
 1. Is simple-daily-termux running? `curl http://127.0.0.1:8090/api/health`
-2. Is nginx proxy configured? `curl http://127.0.0.1:7443/api/summary`
-3. Is `update-widget.js` deployed to Blog-termux?
+2. Are the nginx proxy rules added? `curl http://127.0.0.1:7443/api/summary`
+3. Are `blog-termux-index.html` and `update-widget.js` deployed?
 
----
+**Q: CSS/JS not loading through nginx?**
 
-## Technical Highlights
-
-| Feature | Implementation |
-|---------|---------------|
-| Zero framework | Go `net/http` standard library + `http.ServeMux` pattern routing |
-| Pure Go SQLite | `modernc.org/sqlite` — zero CGO, cross-compile anywhere |
-| Single binary | Frontend embedded via `go:embed`, single file deployment |
-| Modular architecture | handler → service → repository, each package self-contained |
-| Variable isolation | Go: zero package-level mutable state. JS: ES Module scope + `tu-` CSS prefix |
-| Money precision | Integer cents (int64), `math.Round(f * 100)` conversion |
-| Idempotent sync | Diary-ledger: delete old + insert new on every save |
-| Unified envelope | `{"ok": true/false, "data": ...}` across all endpoints |
-| Theme | CSS variables + `body.dark` toggle (same palette as Blog-termux) |
-| Responsive | 4 breakpoints (1024/640/400px), bottom nav on mobile |
-| Square corners | `border-radius: 0` — visual differentiation from Blog-termux |
-| Markdown rendering | marked.js with ledger code block extraction |
-| No build tools | ES Modules (zero bundler), CSS via `cat` merge |
-| Graceful shutdown | SIGINT/SIGTERM → 5s context timeout → server.Shutdown |
-| Timezone-aware | Configurable timezone for pomodoro today calculations |
+The SPA uses relative paths. Ensure nginx has `location /update/ { proxy_pass http://127.0.0.1:8090/; }`.
 
 ---
 
 ## Links
 
-[Blog-termux](https://github.com/lost-clouds/Blog-termux) — the companion dashboard project
+- [Blog-termux](https://github.com/lost-clouds/Blog-termux) — companion dashboard
+- [Releases](https://github.com/lost-clouds/simple-daily-termux/releases)

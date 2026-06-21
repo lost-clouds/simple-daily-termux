@@ -1,22 +1,45 @@
+/* === diary === */
+.tu-diary-layout { display: flex; gap: 0.75rem; }
+.tu-diary-editor { flex: 1; min-width: 0; }
+.tu-diary-preview-wrap { flex: 1; min-width: 0; }
 .tu-diary-preview {
-    padding: 1rem; background: var(--glass-bg);
-    border: 1px solid var(--glass-border); border-radius: 0;
-    min-height: 100px;
+    padding: 0.5rem; background: var(--cell-bg);
+    border: 1px solid var(--glass-border); border-radius: var(--radius-sm);
+    min-height: 100px; font-size: 0.82rem; overflow-y: auto; max-height: 400px;
 }
-.tu-diary-preview h1, .tu-diary-preview h2, .tu-diary-preview h3 { margin: 0.5rem 0; }
-.tu-diary-preview p { margin: 0.3rem 0; }
-.tu-diary-preview code {
-    background: var(--accent-soft); padding: 0.1rem 0.3rem;
-    font-family: var(--font-mono); font-size: 0.8rem;
+.tu-diary-preview h1,.tu-diary-preview h2,.tu-diary-preview h3 { margin: 0.3rem 0; }
+.tu-diary-preview p { margin: 0.2rem 0; }
+.tu-diary-preview code { background: var(--accent-soft); padding: 0.05rem 0.25rem; font-size: 0.75rem; }
+.tu-diary-preview pre { background: var(--bg-secondary); padding: 0.5rem; font-size: 0.75rem; overflow-x: auto; }
+
+.tu-diary-mood { display: flex; gap: 0.3rem; margin-bottom: 0.4rem; }
+.tu-diary-mood-btn { font-size: 1.3rem; padding: 0.1rem; opacity: 0.4; transition: var(--transition); }
+.tu-diary-mood-btn:hover,.tu-diary-mood-btn.active { opacity: 1; transform: scale(1.15); }
+
+/* ledger summary grid */
+.tu-ledger-summary {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-bottom: 0.75rem;
 }
-.tu-diary-preview pre {
-    background: var(--bg-secondary); padding: 0.75rem;
-    overflow-x: auto; font-family: var(--font-mono); font-size: 0.8rem;
+.tu-ledger-summary-item {
+    background: var(--cell-bg); border: 1px solid var(--glass-border);
+    border-radius: var(--radius-sm); padding: 0.5rem; text-align: center;
 }
-.tu-diary-date-picker { margin-bottom: 0.75rem; }
-.tu-diary-mood { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; }
-.tu-diary-mood-btn {
-    font-size: 1.5rem; padding: 0.2rem; border-radius: 0;
-    transition: var(--transition); opacity: 0.5;
+.tu-ledger-summary-value { font-size: 1rem; font-weight: 600; }
+.tu-ledger-summary-label { font-size: 0.65rem; color: var(--text-tertiary); }
+
+/* ledger entry list */
+.tu-ledger-list { font-size: 0.75rem; }
+.tu-ledger-entry {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.3rem 0; border-bottom: 1px solid var(--glass-border);
 }
-.tu-diary-mood-btn:hover, .tu-diary-mood-btn.active { opacity: 1; transform: scale(1.15); }
+.tu-ledger-entry-cat { flex: 1; }
+.tu-ledger-entry-amount { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ledger card in diary preview */
+.tu-ledger-card {
+    background: var(--cell-bg); border: 1px solid var(--accent);
+    border-radius: var(--radius-sm); padding: 0.4rem 0.5rem; margin: 0.3rem 0;
+    font-size: 0.75rem; display: flex; align-items: center; gap: 0.5rem;
+}
+.tu-ledger-card .tu-ledger-amount { font-weight: 600; }

@@ -24,7 +24,6 @@ type Event struct {
 type Repository interface {
 	Create(ctx context.Context, e *Event) error
 	Get(ctx context.Context, id string) (*Event, error)
-	Update(ctx context.Context, e *Event) error
 	Delete(ctx context.Context, id string) error
 	DeleteByRef(ctx context.Context, refID string) error
 	List(ctx context.Context) ([]*Event, error)

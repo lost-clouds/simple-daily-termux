@@ -6,8 +6,10 @@ CREATE TABLE IF NOT EXISTS todos (
     title TEXT NOT NULL,
     notes TEXT DEFAULT '',
     status TEXT NOT NULL DEFAULT 'pending',
-    priority INTEGER NOT NULL DEFAULT 0,
+    task_type TEXT NOT NULL DEFAULT 'one_time',
+    priority INTEGER NOT NULL DEFAULT 4,
     deadline_at TEXT,
+    entry_date TEXT DEFAULT '',
     created_at TEXT NOT NULL,
     updated_at TEXT NOT NULL,
     completed_at TEXT
@@ -29,7 +31,8 @@ CREATE TABLE IF NOT EXISTS pomodoro_sessions (
     ended_at TEXT,
     planned_minutes INTEGER NOT NULL DEFAULT 25,
     actual_minutes INTEGER NOT NULL DEFAULT 0,
-    status TEXT NOT NULL DEFAULT 'completed',
+    status TEXT NOT NULL DEFAULT 'running',
+    session_type TEXT NOT NULL DEFAULT 'focus',
     linked_todo_id TEXT DEFAULT ''
 );
 
@@ -69,6 +72,8 @@ CREATE TABLE IF NOT EXISTS settings (
     value TEXT NOT NULL
 );
 
+CREATE INDEX IF NOT EXISTS idx_todos_entry_date ON todos(entry_date);
+CREATE INDEX IF NOT EXISTS idx_todos_task_type ON todos(task_type);
 CREATE INDEX IF NOT EXISTS idx_todos_status ON todos(status);
 CREATE INDEX IF NOT EXISTS idx_todos_deadline ON todos(deadline_at);
 CREATE INDEX IF NOT EXISTS idx_countdown_ref ON countdown_events(ref_id);
@@ -77,18 +82,19 @@ CREATE INDEX IF NOT EXISTS idx_ledger_diary ON ledger_entries(source_diary_id);
 CREATE INDEX IF NOT EXISTS idx_diary_date ON diary_entries(entry_date);
 CREATE INDEX IF NOT EXISTS idx_calendar_start ON calendar_events(start_at);
 CREATE INDEX IF NOT EXISTS idx_pomodoro_date ON pomodoro_sessions(started_at);
+CREATE INDEX IF NOT EXISTS idx_pomodoro_type ON pomodoro_sessions(session_type);
 `
 
-// MySQL schema uses VARCHAR for datetime columns (store RFC3339 strings, same as SQLite).
-// VARCHAR(35) holds full RFC3339: "2006-01-02T15:04:05.999999999Z07:00"
 const schemaMySQL = `
 CREATE TABLE IF NOT EXISTS todos (
     id VARCHAR(64) PRIMARY KEY,
     title VARCHAR(500) NOT NULL,
     notes TEXT,
     status VARCHAR(20) NOT NULL DEFAULT 'pending',
-    priority INT NOT NULL DEFAULT 0,
+    task_type VARCHAR(20) NOT NULL DEFAULT 'one_time',
+    priority INT NOT NULL DEFAULT 4,
     deadline_at VARCHAR(35) NULL,
+    entry_date VARCHAR(10) DEFAULT '',
     created_at VARCHAR(35) NOT NULL,
     updated_at VARCHAR(35) NOT NULL,
     completed_at VARCHAR(35) NULL
@@ -110,7 +116,8 @@ CREATE TABLE IF NOT EXISTS pomodoro_sessions (
     ended_at VARCHAR(35) NULL,
     planned_minutes INT NOT NULL DEFAULT 25,
     actual_minutes INT NOT NULL DEFAULT 0,
-    status VARCHAR(20) NOT NULL DEFAULT 'completed',
+    status VARCHAR(20) NOT NULL DEFAULT 'running',
+    session_type VARCHAR(10) NOT NULL DEFAULT 'focus',
     linked_todo_id VARCHAR(64) DEFAULT ''
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

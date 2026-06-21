@@ -69,6 +69,7 @@ func main() {
 	pomodoro.RegisterHandler(mux, pomoSvc, cfg.Database.Timezone)
 	diary.RegisterHandler(mux, diarySvc)
 	ledger.RegisterHandler(mux, ledgerSvc)
+	ledger.RegisterSettingsHandler(mux, ledgerSvc)
 	calendar.RegisterHandler(mux, calSvc)
 	summary.RegisterHandler(mux, summarySvc)
 

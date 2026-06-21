@@ -96,6 +96,10 @@ func (s *Service) MonthlySummary(ctx context.Context, year, month int) (*Monthly
 	return summary, nil
 }
 
+func (s *Service) SetSetting(ctx context.Context, key, value string) error {
+	return s.settings.Set(ctx, key, value)
+}
+
 func (s *Service) SetOpeningSavings(ctx context.Context, amountCents int64) error {
 	return s.settings.Set(ctx, "opening_savings_cents", fmt.Sprintf("%d", amountCents))
 }

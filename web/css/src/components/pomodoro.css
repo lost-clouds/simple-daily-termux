@@ -1,16 +1,31 @@
-.tu-pomo-container { text-align: center; padding: 2rem 0; }
+/* === pomodoro === */
+.tu-pomo-container { text-align: center; padding: 1rem 0; }
 .tu-pomo-timer {
-    font-size: 4rem; font-weight: 300; font-variant-numeric: tabular-nums;
-    color: var(--text-primary); margin: 1.5rem 0;
-    font-family: var(--font-mono);
+    font-size: 5rem; font-weight: 200; font-variant-numeric: tabular-nums;
+    color: var(--text-primary); margin: 1rem 0;
+    font-family: var(--font-mono); line-height: 1.1;
 }
-.tu-pomo-controls { display: flex; gap: 0.75rem; justify-content: center; margin-top: 1.5rem; }
-.tu-pomo-preset { display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 1rem; }
-.tu-pomo-stats {
-    display: flex; justify-content: center; gap: 2rem;
-    margin-top: 2rem; padding-top: 1rem;
-    border-top: 1px solid var(--glass-border);
-}
+.tu-pomo-preset { display: flex; gap: 0.4rem; justify-content: center; margin-bottom: 1rem; }
+.tu-pomo-controls { display: flex; gap: 0.5rem; justify-content: center; margin-top: 1rem; }
+.tu-pomo-stats { display: flex; justify-content: center; gap: 2rem; margin-top: 1.5rem; }
 .tu-pomo-stat { text-align: center; }
-.tu-pomo-stat-value { font-size: 1.5rem; font-weight: 600; color: var(--accent); }
-.tu-pomo-stat-label { font-size: 0.75rem; color: var(--text-tertiary); }
+.tu-pomo-stat-value { font-size: 1.3rem; font-weight: 600; color: var(--accent); }
+.tu-pomo-stat-label { font-size: 0.7rem; color: var(--text-tertiary); }
+
+/* rest overlay */
+.tu-pomo-rest-overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,122,255,0.08);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: var(--radius-lg);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 10;
+}
+.tu-pomo-rest-card {
+    background: rgba(0,122,255,0.12);
+    border: 1px solid rgba(0,122,255,0.25);
+    border-radius: var(--radius-lg);
+    padding: 2rem; text-align: center;
+    color: var(--accent); font-size: 1.1rem; font-weight: 600;
+}

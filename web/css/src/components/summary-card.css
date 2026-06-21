@@ -1,6 +1,6 @@
 /* Summary card - used in Blog-termux integration (class prefixed tu- to avoid conflicts) */
 .tu-summary-card {
-    grid-column: span 2;
+    grid-column: span 4;
 }
 .tu-summary-grid {
     display: grid;
@@ -33,9 +33,16 @@
     font-size: 0.72rem;
     color: var(--accent);
     font-weight: 500;
+    cursor: pointer;
 }
 .tu-summary-link:hover { color: var(--accent-hover); }
 
+/* Tablet: 640-1023px, 2 columns → span 2 */
+@media (min-width: 640px) and (max-width: 1023px) {
+    .tu-summary-card { grid-column: span 2; }
+}
+
+/* Mobile: <640px, 1 column → span 1 */
 @media (max-width: 639px) {
     .tu-summary-card { grid-column: span 1; }
     .tu-summary-grid { grid-template-columns: repeat(2, 1fr); }

@@ -1,29 +1,37 @@
-/* Tablet: 640-1023px */
+/* PC: >=1024px */
+@media (min-width: 1024px) {
+    .tu-home { grid-template-columns: 1fr 1fr; }
+    .tu-calendar-grid { grid-template-columns: repeat(7, 1fr); }
+}
+
+/* Pad: 640-1023px */
 @media (min-width: 640px) and (max-width: 1023px) {
-    .tu-tab-btn { font-size: 0.8rem; padding: 0.4rem 0.7rem; }
+    .tu-home { grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    .tu-pomo-timer { font-size: 3.5rem; }
+    .tu-diary-layout { flex-direction: column; }
 }
 
-/* Mobile: <=640px */
+/* Mobile: <640px */
 @media (max-width: 639px) {
-    .tu-tab-bar { display: none; }
-    .tu-bottom-nav {
-        display: flex;
-        padding-bottom: env(safe-area-inset-bottom, 0.25rem);
-    }
-    .tu-main { padding-bottom: 4rem; }
-    .tu-tab-btn { font-size: 0.72rem; }
-    .tu-pomo-timer { font-size: 3rem; }
-}
-
-/* Small phone: <=400px */
-@media (max-width: 400px) {
-    .app-container { padding: 0 0.5rem; }
-    .tu-main { padding: 0.5rem; padding-bottom: 4rem; }
+    .tu-home { grid-template-columns: 1fr; }
+    .tu-calendar-grid { gap: 1px; }
+    .tu-calendar-day { font-size: 0.7rem; min-height: 32px; }
+    .tu-calendar-day-header { font-size: 0.6rem; }
+    .tu-calendar-event-preview { display: none; }
     .tu-pomo-timer { font-size: 2.5rem; }
+    .tu-diary-layout { flex-direction: column; }
+    .tu-bottom-nav { display: flex; }
+    .tu-nav-bar { display: none; }
+    .tu-main { padding-bottom: 4rem; }
 }
 
-/* backdrop-filter fallback */
+/* Small phone <400px */
+@media (max-width: 400px) {
+    .app-container { padding: 0 0.25rem; }
+    .tu-main { padding: 0.25rem; padding-bottom: 4rem; }
+    .tu-pomo-timer { font-size: 2rem; }
+}
+
 @supports not (backdrop-filter: blur(20px)) {
-    .tu-header, .tu-tab-bar, .tu-bottom-nav { background: var(--glass-bg-strong); }
-    body.dark .tu-header, body.dark .tu-tab-bar, body.dark .tu-bottom-nav { background: var(--glass-bg-strong); }
+    .tu-panel, .tu-header { background: var(--glass-bg-strong); }
 }

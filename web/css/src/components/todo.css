@@ -1,25 +1,32 @@
-.tu-todo-list { display: flex; flex-direction: column; gap: 0.5rem; }
+/* === todo list === */
+.tu-todo-list { display: flex; flex-direction: column; gap: 3px; }
 .tu-todo-item {
-    display: flex; align-items: center; gap: 0.75rem;
-    padding: 0.75rem;
-    background: var(--glass-bg);
-    border: 1px solid var(--glass-border);
-    border-radius: 0;
-    transition: var(--transition);
+    display: flex; align-items: center; gap: 0.4rem;
+    padding: 0.35rem 0.4rem;
+    background: var(--cell-bg); border: 1px solid transparent;
+    border-radius: var(--radius-sm); transition: var(--transition);
+    cursor: pointer;
 }
-.tu-todo-item:hover { box-shadow: var(--shadow-sm); }
-.tu-todo-item.done { opacity: 0.5; }
+.tu-todo-item:hover { border-color: var(--glass-border); }
+.tu-todo-item.done { opacity: 0.4; }
 .tu-todo-item.done .tu-todo-title { text-decoration: line-through; }
-.tu-todo-checkbox {
-    width: 20px; height: 20px; border-radius: 0;
-    border: 2px solid var(--glass-border-strong);
-    cursor: pointer; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    transition: var(--transition);
-}
-.tu-todo-checkbox.checked { background: var(--accent); border-color: var(--accent); }
-.tu-todo-checkbox.checked::after { content: '✓'; color: #fff; font-size: 0.75rem; }
+
+/* priority dot */
+.tu-pri-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.tu-pri-I  { background: var(--pri-red); }
+.tu-pri-II { background: var(--pri-orange); }
+.tu-pri-III{ background: var(--pri-yellow); }
+.tu-pri-IV { background: var(--pri-blue); }
+
 .tu-todo-content { flex: 1; min-width: 0; }
-.tu-todo-title { font-size: 0.9rem; font-weight: 500; }
-.tu-todo-meta { font-size: 0.72rem; color: var(--text-tertiary); margin-top: 0.15rem; }
-.tu-todo-actions { display: flex; gap: 0.25rem; flex-shrink: 0; }
+.tu-todo-title { font-size: 0.8rem; font-weight: 500; }
+.tu-todo-meta { font-size: 0.65rem; color: var(--text-tertiary); }
+.tu-todo-actions { display: flex; gap: 0.15rem; flex-shrink: 0; }
+.tu-todo-filters { display: flex; gap: 0.3rem; margin-bottom: 0.5rem; flex-wrap: wrap; }
+.tu-todo-type-tag {
+    font-size: 0.6rem; padding: 0.05rem 0.25rem; border-radius: var(--radius-sm);
+    font-weight: 600;
+}
+.tu-todo-type-daily { background: #e8f5e9; color: #2e7d32; }
+.tu-todo-type-long  { background: #fff3e0; color: #e65100; }
+.tu-todo-type-one   { background: #e3f2fd; color: #1565c0; }

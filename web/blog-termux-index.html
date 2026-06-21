@@ -10,6 +10,19 @@
     <link rel="stylesheet" href="lib/katex.min.css?v=2">
     <link rel="stylesheet" href="lib/github-markdown.min.css?v=2">
     <link rel="stylesheet" href="css/style.css?v=2">
+    <style>
+        /* simple-daily-termux integration card styles */
+        .tu-summary-card { grid-column: span 4; }
+        .tu-summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.3rem 0.6rem; margin-top: 0.3rem; }
+        .tu-summary-item { display: flex; flex-direction: column; }
+        .tu-summary-label { font-size: 0.65rem; color: var(--text-tertiary); }
+        .tu-summary-value { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); font-variant-numeric: tabular-nums; }
+        .tu-summary-footer { flex-basis: 100%; text-align: right; margin-top: 0.4rem; padding-top: 0.3rem; border-top: 1px solid var(--glass-border); }
+        .tu-summary-link { font-size: 0.72rem; color: var(--accent); font-weight: 500; cursor: pointer; }
+        .tu-summary-link:hover { color: var(--accent-hover); }
+        @media (min-width: 640px) and (max-width: 1023px) { .tu-summary-card { grid-column: span 2; } }
+        @media (max-width: 639px) { .tu-summary-card { grid-column: span 1; } .tu-summary-grid { grid-template-columns: repeat(2, 1fr); } }
+    </style>
 </head>
 <body>
 
@@ -46,7 +59,44 @@
             </div>
             <div class="dashboard-grid" id="dashboardGrid">
 
-                <!-- 1. 设备 -->
+                <!-- 1. 日常概览 (simple-daily-termux integration card) -->
+                <div class="dash-card tu-summary-card" id="summaryCard">
+                    <div class="dash-icon">📋</div>
+                    <div class="dash-info">
+                        <div class="dash-label">日常概览</div>
+                        <div class="tu-summary-grid" id="summaryGrid">
+                            <div class="tu-summary-item">
+                                <span class="tu-summary-label">本月支出</span>
+                                <span class="tu-summary-value" id="sumExpense">--</span>
+                            </div>
+                            <div class="tu-summary-item">
+                                <span class="tu-summary-label">本月收入</span>
+                                <span class="tu-summary-value" id="sumIncome">--</span>
+                            </div>
+                            <div class="tu-summary-item">
+                                <span class="tu-summary-label">月结余</span>
+                                <span class="tu-summary-value" id="sumBalance">--</span>
+                            </div>
+                            <div class="tu-summary-item">
+                                <span class="tu-summary-label">储蓄</span>
+                                <span class="tu-summary-value" id="sumSavings">--</span>
+                            </div>
+                            <div class="tu-summary-item">
+                                <span class="tu-summary-label">今日专注</span>
+                                <span class="tu-summary-value" id="sumFocus">--</span>
+                            </div>
+                            <div class="tu-summary-item">
+                                <span class="tu-summary-label">倒计时</span>
+                                <span class="tu-summary-value" id="sumCountdown">--</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tu-summary-footer">
+                        <a href="/update/" target="_blank" class="tu-summary-link">进入日常管理 →</a>
+                    </div>
+                </div>
+
+                <!-- 2. 设备 -->
                 <div class="dash-card">
                     <div class="dash-icon">📱</div>
                     <div class="dash-info">
@@ -133,42 +183,6 @@
                     </div>
                 </div>
 
-                <!-- 9. 日常概览 (simple-daily-termux integration card) -->
-                <div class="dash-card tu-summary-card" id="summaryCard">
-                    <div class="dash-icon">📋</div>
-                    <div class="dash-info">
-                        <div class="dash-label">日常概览</div>
-                        <div class="tu-summary-grid" id="summaryGrid">
-                            <div class="tu-summary-item">
-                                <span class="tu-summary-label">本月支出</span>
-                                <span class="tu-summary-value" id="sumExpense">--</span>
-                            </div>
-                            <div class="tu-summary-item">
-                                <span class="tu-summary-label">本月收入</span>
-                                <span class="tu-summary-value" id="sumIncome">--</span>
-                            </div>
-                            <div class="tu-summary-item">
-                                <span class="tu-summary-label">月结余</span>
-                                <span class="tu-summary-value" id="sumBalance">--</span>
-                            </div>
-                            <div class="tu-summary-item">
-                                <span class="tu-summary-label">储蓄</span>
-                                <span class="tu-summary-value" id="sumSavings">--</span>
-                            </div>
-                            <div class="tu-summary-item">
-                                <span class="tu-summary-label">今日专注</span>
-                                <span class="tu-summary-value" id="sumFocus">--</span>
-                            </div>
-                            <div class="tu-summary-item">
-                                <span class="tu-summary-label">倒计时</span>
-                                <span class="tu-summary-value" id="sumCountdown">--</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="tu-summary-footer">
-                        <a href="/update/" class="tu-summary-link">进入日常管理 →</a>
-                    </div>
-                </div>
 
             </div>
         </section>

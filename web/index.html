@@ -2,235 +2,266 @@
 <html lang="zh-CN" data-theme="light">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#e8e8ed">
-<title>simple-daily-termux</title>
-<link rel="stylesheet" href="/css/style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#f5f5f7">
+<meta name="color-scheme" content="light dark">
+<title>Daily</title>
+<script>
+(function(){
+  var t=localStorage.getItem('app-theme');
+  if(!t) t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';
+  document.documentElement.setAttribute('data-theme',t);
+  if(t==='dark') document.body.classList.add('dark');
+})();
+</script>
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<!-- Header -->
 <header class="tu-header">
-    <div class="tu-header-inner">
-        <div class="tu-brand">日常管理</div>
-        <div class="tu-header-actions">
-            <button class="tu-theme-btn" id="themeToggleBtn" title="切换主题">🌓</button>
-        </div>
-    </div>
+  <div class="tu-header-inner">
+    <div class="tu-brand">Daily</div>
+    <button class="tu-theme-btn" id="themeToggleBtn" title="切换主题" aria-label="切换主题">🌓</button>
+  </div>
 </header>
 
-<!-- Tab Bar (PC/Pad) -->
-<nav class="tu-tab-bar" id="tabBar">
-    <button class="tu-tab-btn" data-tab="calendar">📅 日历</button>
-    <button class="tu-tab-btn" data-tab="todo">✅ TODO</button>
-    <button class="tu-tab-btn" data-tab="pomodoro">⏱️ 番茄钟</button>
-    <button class="tu-tab-btn" data-tab="diary">📝 日记记账</button>
-    <button class="tu-tab-btn" data-tab="countdown">⏳ 倒计时</button>
-</nav>
-
-<!-- Content -->
 <main class="tu-main">
 
-    <!-- Calendar Tab -->
-    <section class="tu-section active" id="sec-calendar">
-        <div class="tu-calendar-header">
-            <div class="tu-calendar-title" id="calTitle">2026年6月</div>
-            <div class="tu-calendar-nav">
-                <button class="tu-btn tu-btn-sm tu-btn-ghost" id="calPrev">◀</button>
-                <button class="tu-btn tu-btn-sm tu-btn-ghost" id="calNext">▶</button>
-            </div>
+  <!-- ====== HOME ====== -->
+  <section class="tu-section active" id="sec-home">
+    <div class="tu-home">
+      <!-- left panel: TODOs (top) + Diary (bottom) -->
+      <div class="tu-home-left">
+        <div class="tu-panel" style="flex:1;display:flex;flex-direction:column;">
+          <div class="tu-panel-header">
+            <span id="homeDateLabel">今日待办</span>
+            <button class="tu-btn tu-btn-xs tu-btn-ghost" id="homeTodoAddBtn">+</button>
+          </div>
+          <div class="tu-panel-scroll" id="homeTodoList"></div>
+          <div class="tu-panel-footer">
+            <span>专注: <b id="homeFocusMin">0</b>min</span>
+            <span>休息: <b id="homeRestMin">0</b>min</span>
+          </div>
         </div>
-        <div class="tu-calendar-grid" id="calGrid"></div>
-        <div class="tu-calendar-events" id="calEventsList"></div>
-    </section>
+        <div class="tu-panel" style="flex:1;display:flex;flex-direction:column;">
+          <div class="tu-panel-header">
+            <span>日记预览</span>
+            <button class="tu-btn tu-btn-xs tu-btn-ghost" id="homeDiaryEditBtn">编辑</button>
+          </div>
+          <div class="tu-panel-scroll tu-text-sm" id="homeDiaryPreview"></div>
+          <div class="tu-panel-footer">
+            <span>支出: <b id="homeExpense">¥0</b></span>
+            <span>收入: <b id="homeIncome">¥0</b></span>
+          </div>
+        </div>
+      </div>
+      <!-- right panel: Calendar -->
+      <div class="tu-home-right">
+        <div class="tu-panel" style="flex:1;display:flex;flex-direction:column;">
+          <div class="tu-calendar-header">
+            <button class="tu-btn tu-btn-xs tu-btn-ghost" id="calPrev">◀</button>
+            <span class="tu-calendar-title" id="calTitle"></span>
+            <button class="tu-btn tu-btn-xs tu-btn-ghost" id="calNext">▶</button>
+          </div>
+          <div class="tu-calendar-grid" id="calGrid"></div>
+          <div class="tu-calendar-events" id="calEventsList"></div>
+          <!-- nav bar under calendar -->
+          <nav class="tu-nav-bar" id="navBar">
+            <button class="tu-nav-btn active" data-tab="home">🏠 首页</button>
+            <button class="tu-nav-btn" data-tab="calendar">📅 日历</button>
+            <button class="tu-nav-btn" data-tab="todo">✅ TODO</button>
+            <button class="tu-nav-btn" data-tab="pomodoro">⏱️ 番茄</button>
+            <button class="tu-nav-btn" data-tab="diary">📝 日记</button>
+            <button class="tu-nav-btn" data-tab="countdown">⏳ 倒计时</button>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <!-- Todo Tab -->
-    <section class="tu-section" id="sec-todo">
-        <div class="tu-flex-between tu-mb">
-            <select class="tu-select" style="width:auto" id="todoFilter">
-                <option value="">全部</option>
-                <option value="pending">待办</option>
-                <option value="doing">进行中</option>
-                <option value="done">已完成</option>
-            </select>
-            <button class="tu-btn tu-btn-primary tu-btn-sm" id="todoAddBtn">+ 新事项</button>
-        </div>
-        <div class="tu-card tu-mb" id="todoFormWrap" style="display:none">
-            <input type="hidden" id="todoId">
-            <div class="tu-form-group">
-                <label class="tu-form-label">标题</label>
-                <input class="tu-input" id="todoTitle" placeholder="待办事项...">
-            </div>
-            <div class="tu-form-group">
-                <label class="tu-form-label">优先级</label>
-                <select class="tu-select" id="todoPriority">
-                    <option value="0">无</option><option value="1">低</option>
-                    <option value="2">中</option><option value="3">高</option>
-                </select>
-            </div>
-            <div class="tu-form-group">
-                <label class="tu-form-label">状态</label>
-                <select class="tu-select" id="todoStatus">
-                    <option value="pending">待办</option>
-                    <option value="doing">进行中</option>
-                    <option value="done">已完成</option>
-                </select>
-            </div>
-            <div class="tu-form-group">
-                <label class="tu-form-label">截止日期</label>
-                <input type="datetime-local" class="tu-input" id="todoDeadline">
-            </div>
-            <div class="tu-flex tu-gap-sm">
-                <button class="tu-btn tu-btn-primary tu-btn-sm" id="todoSaveBtn">保存</button>
-                <button class="tu-btn tu-btn-ghost tu-btn-sm" id="todoCancelBtn">取消</button>
-            </div>
-        </div>
-        <div class="tu-todo-list" id="todoList"></div>
-    </section>
+  <!-- ====== CALENDAR (full page) ====== -->
+  <section class="tu-section" id="sec-calendar">
+    <div class="tu-panel" style="min-height:85vh;display:flex;flex-direction:column;">
+      <div class="tu-calendar-header">
+        <button class="tu-btn tu-btn-xs tu-btn-ghost" id="calPagePrev">◀</button>
+        <span class="tu-calendar-title" id="calPageTitle"></span>
+        <button class="tu-btn tu-btn-xs tu-btn-ghost" id="calPageNext">▶</button>
+      </div>
+      <div class="tu-calendar-grid" id="calPageGrid"></div>
+      <div class="tu-calendar-events" id="calPageEventsList"></div>
+      <nav class="tu-nav-bar" id="navBarCal">
+        <button class="tu-nav-btn" data-tab="home">🏠 首页</button>
+        <button class="tu-nav-btn active" data-tab="calendar">📅 日历</button>
+        <button class="tu-nav-btn" data-tab="todo">✅ TODO</button>
+        <button class="tu-nav-btn" data-tab="pomodoro">⏱️ 番茄</button>
+        <button class="tu-nav-btn" data-tab="diary">📝 日记</button>
+        <button class="tu-nav-btn" data-tab="countdown">⏳ 倒计时</button>
+      </nav>
+    </div>
+  </section>
 
-    <!-- Pomodoro Tab -->
-    <section class="tu-section" id="sec-pomodoro">
-        <div class="tu-pomo-container">
-            <div class="tu-pomo-preset">
-                <button class="tu-btn tu-btn-sm tu-btn-ghost tu-pomo-preset-btn" data-minutes="15">15分</button>
-                <button class="tu-btn tu-btn-sm tu-btn-ghost tu-pomo-preset-btn" data-minutes="25">25分</button>
-                <button class="tu-btn tu-btn-sm tu-btn-ghost tu-pomo-preset-btn" data-minutes="45">45分</button>
-            </div>
-            <div class="tu-pomo-timer" id="pomoTimer">25:00</div>
-            <div class="tu-pomo-controls">
-                <button class="tu-btn tu-btn-primary" id="pomoStart">开始</button>
-                <button class="tu-btn tu-btn-ghost" id="pomoPause" style="display:none">暂停</button>
-                <button class="tu-btn tu-btn-ghost" id="pomoReset">重置</button>
-            </div>
-            <div class="tu-pomo-stats">
-                <div class="tu-pomo-stat">
-                    <div class="tu-pomo-stat-value" id="pomoTodayMinutes">0</div>
-                    <div class="tu-pomo-stat-label">今日专注分钟</div>
-                </div>
-            </div>
+  <!-- ====== TODO ====== -->
+  <section class="tu-section" id="sec-todo">
+    <div class="tu-panel" style="min-height:85vh;display:flex;flex-direction:column;">
+      <div class="tu-panel-header">
+        <span>TODO 任务</span>
+        <button class="tu-btn tu-btn-xs tu-btn-primary" id="todoAddBtn">+ 新任务</button>
+      </div>
+      <div class="tu-todo-filters">
+        <select class="tu-select" style="width:auto" id="todoFilter"><option value="">全部状态</option><option value="pending">待办</option><option value="doing">进行中</option><option value="done">已完成</option></select>
+        <select class="tu-select" style="width:auto" id="todoTypeFilter"><option value="">全部类型</option><option value="daily">每日</option><option value="long_term">长期</option><option value="one_time">一次性</option></select>
+      </div>
+      <div id="todoFormWrap" style="display:none;margin-bottom:0.5rem;padding:0.5rem;background:var(--cell-bg);border-radius:var(--radius-sm);">
+        <input type="hidden" id="todoId">
+        <div class="tu-form-group"><label class="tu-form-label">标题</label><input class="tu-input" id="todoTitle"></div>
+        <div class="tu-form-group" style="display:flex;gap:0.5rem">
+          <div style="flex:1"><label class="tu-form-label">类型</label><select class="tu-select" id="todoTaskType"><option value="one_time">一次性</option><option value="daily">每日</option><option value="long_term">长期</option></select></div>
+          <div style="flex:1"><label class="tu-form-label">状态</label><select class="tu-select" id="todoStatus"><option value="pending">待办</option><option value="doing">进行中</option><option value="done">已完成</option></select></div>
         </div>
-    </section>
+        <div class="tu-form-group"><label class="tu-form-label">截止日期 (可选)</label><input type="datetime-local" class="tu-input" id="todoDeadline"></div>
+        <div class="tu-form-group"><label class="tu-form-label">备注</label><input class="tu-input" id="todoNotes"></div>
+        <div class="tu-flex tu-gap-sm">
+          <button class="tu-btn tu-btn-sm tu-btn-primary" id="todoSaveBtn">保存</button>
+          <button class="tu-btn tu-btn-sm tu-btn-ghost" id="todoCancelBtn">取消</button>
+        </div>
+      </div>
+      <div class="tu-todo-list" id="todoList"></div>
+      <nav class="tu-nav-bar" id="navBarTodo">
+        <button class="tu-nav-btn" data-tab="home">🏠 首页</button>
+        <button class="tu-nav-btn" data-tab="calendar">📅 日历</button>
+        <button class="tu-nav-btn active" data-tab="todo">✅ TODO</button>
+        <button class="tu-nav-btn" data-tab="pomodoro">⏱️ 番茄</button>
+        <button class="tu-nav-btn" data-tab="diary">📝 日记</button>
+        <button class="tu-nav-btn" data-tab="countdown">⏳ 倒计时</button>
+      </nav>
+    </div>
+  </section>
 
-    <!-- Diary+Ledger Tab -->
-    <section class="tu-section" id="sec-diary">
-        <!-- Ledger summary -->
-        <div class="tu-ledger-summary" id="ledgerSummary">
-            <div class="tu-ledger-summary-item expense">
-                <div class="tu-ledger-summary-value" id="sumExpense">¥0.00</div>
-                <div class="tu-ledger-summary-label">本月支出</div>
-            </div>
-            <div class="tu-ledger-summary-item income">
-                <div class="tu-ledger-summary-value" id="sumIncome">¥0.00</div>
-                <div class="tu-ledger-summary-label">本月收入</div>
-            </div>
-            <div class="tu-ledger-summary-item">
-                <div class="tu-ledger-summary-value" id="sumBalance">¥0.00</div>
-                <div class="tu-ledger-summary-label">月结余</div>
-            </div>
-            <div class="tu-ledger-summary-item">
-                <div class="tu-ledger-summary-value" id="sumSavings">¥0.00</div>
-                <div class="tu-ledger-summary-label">储蓄</div>
-            </div>
+  <!-- ====== POMODORO ====== -->
+  <section class="tu-section" id="sec-pomodoro">
+    <div class="tu-panel" style="position:relative;min-height:85vh;display:flex;flex-direction:column;">
+      <div class="tu-pomo-container">
+        <div class="tu-pomo-preset">
+          <button class="tu-btn tu-btn-sm tu-btn-ghost tu-pomo-preset-btn" data-minutes="15">15m</button>
+          <button class="tu-btn tu-btn-sm tu-btn-ghost tu-pomo-preset-btn" data-minutes="25">25m</button>
+          <button class="tu-btn tu-btn-sm tu-btn-ghost tu-pomo-preset-btn" data-minutes="45">45m</button>
         </div>
+        <div class="tu-pomo-timer" id="pomoTimer">25:00</div>
+        <div class="tu-pomo-controls">
+          <button class="tu-btn tu-btn-primary" id="pomoStart">开始专注</button>
+          <button class="tu-btn tu-btn-ghost" id="pomoPause" style="display:none">暂停</button>
+          <button class="tu-btn tu-btn-ghost" id="pomoReset">重置</button>
+        </div>
+        <div class="tu-pomo-stats">
+          <div class="tu-pomo-stat"><div class="tu-pomo-stat-value" id="pomoFocusMin">0</div><div class="tu-pomo-stat-label">今日专注(min)</div></div>
+          <div class="tu-pomo-stat"><div class="tu-pomo-stat-value" id="pomoRestMin">0</div><div class="tu-pomo-stat-label">今日休息(min)</div></div>
+        </div>
+      </div>
+      <div class="tu-pomo-rest-overlay" id="pomoRestOverlay" style="display:none">
+        <div class="tu-pomo-rest-card">🎯 专注完成！<br><small>点击开始休息</small></div>
+      </div>
+      <nav class="tu-nav-bar" id="navBarPomo">
+        <button class="tu-nav-btn" data-tab="home">🏠 首页</button>
+        <button class="tu-nav-btn" data-tab="calendar">📅 日历</button>
+        <button class="tu-nav-btn" data-tab="todo">✅ TODO</button>
+        <button class="tu-nav-btn active" data-tab="pomodoro">⏱️ 番茄</button>
+        <button class="tu-nav-btn" data-tab="diary">📝 日记</button>
+        <button class="tu-nav-btn" data-tab="countdown">⏳ 倒计时</button>
+      </nav>
+    </div>
+  </section>
 
-        <!-- Diary editor -->
-        <div class="tu-card">
-            <div class="tu-diary-date-picker">
-                <input type="date" class="tu-input" id="diaryDate" style="width:auto">
-            </div>
-            <div class="tu-diary-mood">
-                <button class="tu-diary-mood-btn" data-mood="😊">😊</button>
-                <button class="tu-diary-mood-btn" data-mood="😐">😐</button>
-                <button class="tu-diary-mood-btn" data-mood="😢">😢</button>
-                <button class="tu-diary-mood-btn" data-mood="😡">😡</button>
-                <button class="tu-diary-mood-btn" data-mood="🤩">🤩</button>
-                <button class="tu-diary-mood-btn" data-mood="😴">😴</button>
-            </div>
-            <textarea class="tu-textarea" id="diaryContent" rows="12" placeholder="写日记...&#10;&#10;支持 Markdown 语法&#10;点击「插入记账」添加记账条目"></textarea>
-            <div class="tu-flex tu-gap-sm tu-mt">
-                <button class="tu-btn tu-btn-sm tu-btn-primary" id="diarySaveBtn">保存日记</button>
-                <button class="tu-btn tu-btn-sm tu-btn-ghost" id="insertLedgerBtn">💳 插入记账</button>
-            </div>
+  <!-- ====== DIARY + LEDGER ====== -->
+  <section class="tu-section" id="sec-diary">
+    <div class="tu-panel">
+      <div class="tu-ledger-summary" id="ledgerSummary">
+        <div class="tu-ledger-summary-item"><div class="tu-ledger-summary-value" id="sumExpense">¥0</div><div class="tu-ledger-summary-label">本月支出</div></div>
+        <div class="tu-ledger-summary-item"><div class="tu-ledger-summary-value" id="sumIncome">¥0</div><div class="tu-ledger-summary-label">本月收入</div></div>
+        <div class="tu-ledger-summary-item"><div class="tu-ledger-summary-value" id="sumBalance">¥0</div><div class="tu-ledger-summary-label">月结余</div></div>
+        <div class="tu-ledger-summary-item"><div class="tu-ledger-summary-value" id="sumSavings">¥0</div><div class="tu-ledger-summary-label">储蓄</div></div>
+      </div>
+      <div class="tu-diary-layout">
+        <div class="tu-diary-editor">
+          <input type="date" class="tu-input tu-mb" id="diaryDate" style="width:auto">
+          <div class="tu-diary-mood">
+            <button class="tu-diary-mood-btn" data-mood="😊">😊</button><button class="tu-diary-mood-btn" data-mood="😐">😐</button>
+            <button class="tu-diary-mood-btn" data-mood="😢">😢</button><button class="tu-diary-mood-btn" data-mood="😡">😡</button>
+            <button class="tu-diary-mood-btn" data-mood="🤩">🤩</button><button class="tu-diary-mood-btn" data-mood="😴">😴</button>
+          </div>
+          <textarea class="tu-textarea" id="diaryContent" rows="14" placeholder="写日记... Markdown 语法"></textarea>
+          <button class="tu-btn tu-btn-sm tu-btn-primary tu-mt" id="diarySaveBtn">保存日记</button>
         </div>
-        <div class="tu-card tu-mt">
-            <div class="tu-card-title">预览</div>
-            <div class="tu-diary-preview" id="diaryPreview"></div>
+        <div class="tu-diary-preview-wrap">
+          <div class="tu-panel-header" style="border-bottom:none;padding-bottom:0.3rem;">预览</div>
+          <div class="tu-diary-preview" id="diaryPreview"></div>
         </div>
+      </div>
 
-        <!-- Ledger list -->
-        <div class="tu-card tu-mt">
-            <div class="tu-card-header">
-                <span class="tu-card-title">本月账目</span>
-                <button class="tu-btn tu-btn-xs tu-btn-ghost" id="ledgerAddBtn">+ 记账</button>
-            </div>
-            <div class="tu-card tu-mb" id="ledgerForm" style="display:none">
-                <div class="tu-form-group">
-                    <label class="tu-form-label">日期</label>
-                    <input type="date" class="tu-input" id="ledgerEntryDate">
-                </div>
-                <div class="tu-form-group">
-                    <label class="tu-form-label">类型</label>
-                    <select class="tu-select" id="ledgerType">
-                        <option value="expense">支出</option>
-                        <option value="income">收入</option>
-                    </select>
-                </div>
-                <div class="tu-form-group">
-                    <label class="tu-form-label">金额</label>
-                    <input type="number" step="0.01" class="tu-input" id="ledgerAmount" placeholder="0.00">
-                </div>
-                <div class="tu-form-group">
-                    <label class="tu-form-label">分类</label>
-                    <input class="tu-input" id="ledgerCategory" placeholder="餐饮/交通/购物...">
-                </div>
-                <div class="tu-form-group">
-                    <label class="tu-form-label">备注</label>
-                    <input class="tu-input" id="ledgerNote">
-                </div>
-                <div class="tu-flex tu-gap-sm">
-                    <button class="tu-btn tu-btn-primary tu-btn-sm" id="ledgerSaveBtn">保存</button>
-                    <button class="tu-btn tu-btn-ghost tu-btn-sm" id="ledgerCancelBtn">取消</button>
-                </div>
-            </div>
-            <div id="ledgerList"></div>
+      <!-- Ledger entry form -->
+      <div class="tu-mt">
+        <div class="tu-panel-header">
+          <span>记账</span>
+          <button class="tu-btn tu-btn-xs tu-btn-ghost" id="ledgerAddBtn">+ 记账</button>
         </div>
-    </section>
+        <div id="ledgerForm" style="display:none;margin-bottom:0.5rem;padding:0.5rem;background:var(--cell-bg);border-radius:var(--radius-sm);">
+          <div style="display:flex;gap:0.5rem">
+            <div class="tu-form-group" style="flex:1"><label class="tu-form-label">日期</label><input type="date" class="tu-input" id="ledgerEntryDate"></div>
+            <div class="tu-form-group" style="flex:1"><label class="tu-form-label">类型</label><select class="tu-select" id="ledgerType"><option value="expense">支出</option><option value="income">收入</option></select></div>
+          </div>
+          <div class="tu-form-group"><label class="tu-form-label">类别</label><select class="tu-select" id="ledgerCategory"><option value="工资">工资</option><option value="餐饮">餐饮</option><option value="交通">交通</option><option value="购物">购物</option><option value="缴费">缴费</option><option value="副业">副业</option><option value="其他">其他</option></select></div>
+          <div class="tu-form-group"><label class="tu-form-label">金额</label><input type="number" step="0.01" class="tu-input" id="ledgerAmount" placeholder="0.00"></div>
+          <div class="tu-form-group"><label class="tu-form-label">备注</label><input class="tu-input" id="ledgerNote"></div>
+          <div class="tu-flex tu-gap-sm"><button class="tu-btn tu-btn-sm tu-btn-primary" id="ledgerSaveBtn">保存</button><button class="tu-btn tu-btn-sm tu-btn-ghost" id="ledgerCancelBtn">取消</button></div>
+        </div>
+        <div class="tu-ledger-list" id="ledgerList"></div>
+      </div>
+      <nav class="tu-nav-bar tu-mt" id="navBarDiary">
+        <button class="tu-nav-btn" data-tab="home">🏠 首页</button>
+        <button class="tu-nav-btn" data-tab="calendar">📅 日历</button>
+        <button class="tu-nav-btn" data-tab="todo">✅ TODO</button>
+        <button class="tu-nav-btn" data-tab="pomodoro">⏱️ 番茄</button>
+        <button class="tu-nav-btn active" data-tab="diary">📝 日记</button>
+        <button class="tu-nav-btn" data-tab="countdown">⏳ 倒计时</button>
+      </nav>
+    </div>
+  </section>
 
-    <!-- Countdown Tab -->
-    <section class="tu-section" id="sec-countdown">
-        <div class="tu-flex-between tu-mb">
-            <span></span>
-            <button class="tu-btn tu-btn-primary tu-btn-sm" id="cdAddBtn">+ 新倒计时</button>
-        </div>
-        <div class="tu-card tu-mb" id="cdForm" style="display:none">
-            <div class="tu-form-group">
-                <label class="tu-form-label">标题</label>
-                <input class="tu-input" id="cdTitle" placeholder="例如：项目截止">
-            </div>
-            <div class="tu-form-group">
-                <label class="tu-form-label">目标日期</label>
-                <input type="datetime-local" class="tu-input" id="cdTarget">
-            </div>
-            <div class="tu-flex tu-gap-sm">
-                <button class="tu-btn tu-btn-primary tu-btn-sm" id="cdSaveBtn">保存</button>
-                <button class="tu-btn tu-btn-ghost tu-btn-sm" id="cdCancelBtn">取消</button>
-            </div>
-        </div>
-        <div class="tu-countdown-list" id="cdList"></div>
-    </section>
+  <!-- ====== COUNTDOWN ====== -->
+  <section class="tu-section" id="sec-countdown">
+    <div class="tu-panel">
+      <div class="tu-panel-header">
+        <span>倒计时</span>
+        <button class="tu-btn tu-btn-xs tu-btn-primary" id="cdAddBtn">+ 新倒计时</button>
+      </div>
+      <div id="cdForm" style="display:none;margin-bottom:0.5rem;padding:0.5rem;background:var(--cell-bg);border-radius:var(--radius-sm);">
+        <div class="tu-form-group"><label class="tu-form-label">标题</label><input class="tu-input" id="cdTitle" placeholder="例如：项目截止"></div>
+        <div class="tu-form-group"><label class="tu-form-label">目标日期</label><input type="datetime-local" class="tu-input" id="cdTarget"></div>
+        <div class="tu-flex tu-gap-sm"><button class="tu-btn tu-btn-sm tu-btn-primary" id="cdSaveBtn">保存</button><button class="tu-btn tu-btn-sm tu-btn-ghost" id="cdCancelBtn">取消</button></div>
+      </div>
+      <div class="tu-cd-list" id="cdList"></div>
+      <nav class="tu-nav-bar tu-mt" id="navBarCD">
+        <button class="tu-nav-btn" data-tab="home">🏠 首页</button>
+        <button class="tu-nav-btn" data-tab="calendar">📅 日历</button>
+        <button class="tu-nav-btn" data-tab="todo">✅ TODO</button>
+        <button class="tu-nav-btn" data-tab="pomodoro">⏱️ 番茄</button>
+        <button class="tu-nav-btn" data-tab="diary">📝 日记</button>
+        <button class="tu-nav-btn active" data-tab="countdown">⏳ 倒计时</button>
+      </nav>
+    </div>
+  </section>
 
 </main>
 
-<!-- Bottom Nav (Mobile) -->
 <nav class="tu-bottom-nav" id="bottomNav">
-    <button class="tu-tab-btn" data-tab="calendar">📅</button>
-    <button class="tu-tab-btn" data-tab="todo">✅</button>
-    <button class="tu-tab-btn" data-tab="pomodoro">⏱️</button>
-    <button class="tu-tab-btn" data-tab="diary">📝</button>
-    <button class="tu-tab-btn" data-tab="countdown">⏳</button>
+  <button class="tu-nav-btn" data-tab="home">🏠</button>
+  <button class="tu-nav-btn" data-tab="calendar">📅</button>
+  <button class="tu-nav-btn" data-tab="todo">✅</button>
+  <button class="tu-nav-btn" data-tab="pomodoro">⏱️</button>
+  <button class="tu-nav-btn" data-tab="diary">📝</button>
+  <button class="tu-nav-btn" data-tab="countdown">⏳</button>
 </nav>
 
-<script src="/lib/marked.min.js"></script>
-<script type="module" src="/js/main.js"></script>
+<script src="lib/marked.min.js"></script>
+<script type="module" src="js/main.js"></script>
 </body>
 </html>

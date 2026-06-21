@@ -2,7 +2,6 @@ package diary
 
 import (
 	"context"
-	"database/sql"
 	"log"
 	"time"
 
@@ -21,18 +20,24 @@ func NewService(r Repository, ledgerSvc *ledger.Service) *Service {
 
 func (s *Service) Get(ctx context.Context, date string) (*Entry, error) {
 	e, err := s.repo.GetByDate(ctx, date)
-	if err == sql.ErrNoRows {
+	if err != nil {
+		return nil, err
+	}
+	if e == nil {
 		return nil, ErrNotFound
 	}
-	return e, err
+	return e, nil
 }
 
 func (s *Service) Save(ctx context.Context, entryDate, contentMD, mood string) (*Entry, error) {
 	now := time.Now()
-
 	existing, err := s.repo.GetByDate(ctx, entryDate)
+	if err != nil {
+		return nil, err
+	}
+
 	var e *Entry
-	if err == nil {
+	if existing != nil {
 		e = existing
 		e.ContentMD = contentMD
 		e.Mood = mood

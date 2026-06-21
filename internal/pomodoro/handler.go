@@ -15,6 +15,7 @@ type Handler struct {
 func RegisterHandler(mux *http.ServeMux, svc *Service, timezone string) {
 	h := &Handler{svc: svc, timezone: timezone}
 	mux.HandleFunc("POST /api/pomodoro/start", h.Start)
+	mux.HandleFunc("POST /api/pomodoro/start-rest", h.StartRest)
 	mux.HandleFunc("POST /api/pomodoro/{id}/finish", h.Finish)
 	mux.HandleFunc("GET /api/pomodoro/today", h.GetToday)
 	mux.HandleFunc("GET /api/pomodoro", h.ListRange)
@@ -35,7 +36,7 @@ func (h *Handler) Start(w http.ResponseWriter, r *http.Request) {
 		req.PlannedMinutes = 25
 	}
 
-	session, err := h.svc.Start(r.Context(), req.PlannedMinutes, req.LinkedTodoID)
+	session, err := h.svc.Start(r.Context(), req.PlannedMinutes, TypeFocus, req.LinkedTodoID)
 	if err != nil {
 		httputil.Error(w, http.StatusInternalServerError, err.Error())
 		return
@@ -66,13 +67,19 @@ func (h *Handler) Finish(w http.ResponseWriter, r *http.Request) {
 	httputil.JSON(w, http.StatusOK, session)
 }
 
+func (h *Handler) StartRest(w http.ResponseWriter, r *http.Request) {
+	var req startReq
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil { httputil.Error(w, 400, "invalid JSON"); return }
+	if req.PlannedMinutes <= 0 { req.PlannedMinutes = 5 }
+	session, err := h.svc.Start(r.Context(), req.PlannedMinutes, TypeRest, req.LinkedTodoID)
+	if err != nil { httputil.Error(w, 500, err.Error()); return }
+	httputil.JSON(w, 201, session)
+}
+
 func (h *Handler) GetToday(w http.ResponseWriter, r *http.Request) {
-	minutes, err := h.svc.GetTodayMinutes(r.Context(), h.timezone)
-	if err != nil {
-		httputil.Error(w, http.StatusInternalServerError, err.Error())
-		return
-	}
-	httputil.JSON(w, http.StatusOK, map[string]int{"total_minutes": minutes})
+	focus, _ := h.svc.GetTodayMinutes(r.Context(), h.timezone)
+	rest, _ := h.svc.GetTodayRestMinutes(r.Context(), h.timezone)
+	httputil.JSON(w, http.StatusOK, map[string]int{"total_minutes": focus, "rest_minutes": rest})
 }
 
 func (h *Handler) ListRange(w http.ResponseWriter, r *http.Request) {
