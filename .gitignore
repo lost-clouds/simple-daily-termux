@@ -4,9 +4,6 @@ simple-daily-termux
 # Runtime data
 data/
 
-# Build artifacts
-web/css/.gitkeep
-
-# IDE
+# IDE / editor
 .vscode/
 .idea/
