@@ -352,7 +352,7 @@ SPA 使用相对路径。确保 nginx 有 `location /update/ { proxy_pass http:/
 
 ---
 
-## 友链
+## Links
 
 - [Blog-termux](https://github.com/lost-clouds/Blog-termux) — 联动仪表盘项目
-- [Releases](https://github.com/lost-clouds/simple-daily-termux/releases)
+- [Linux.do](https://linux.do)
