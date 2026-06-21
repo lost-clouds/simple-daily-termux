@@ -8,6 +8,8 @@ A lightweight personal time management application — Go backend + vanilla Java
 
 > Built for Termux on Android. Pure Go (zero CGO), single binary deployment, ~15MB footprint.
 
+![Screenshot](example/example.png)
+
 ---
 
 ## Table of Contents

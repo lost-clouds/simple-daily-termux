@@ -8,6 +8,8 @@
 
 > 为 Android Termux 环境而生。纯 Go（零 CGO），单二进制部署，约 15MB。
 
+![截图](example/example.png)
+
 ---
 
 ## 目录
