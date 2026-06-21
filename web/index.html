@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#e8e8ed">
+<title>simple-daily-termux</title>
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- Header -->
+<header class="tu-header">
+    <div class="tu-header-inner">
+        <div class="tu-brand">日常管理</div>
+        <div class="tu-header-actions">
+            <button class="tu-theme-btn" id="themeToggleBtn" title="切换主题">🌓</button>
+        </div>
+    </div>
+</header>
+
+<!-- Tab Bar (PC/Pad) -->
+<nav class="tu-tab-bar" id="tabBar">
+    <button class="tu-tab-btn" data-tab="calendar">📅 日历</button>
+    <button class="tu-tab-btn" data-tab="todo">✅ TODO</button>
+    <button class="tu-tab-btn" data-tab="pomodoro">⏱️ 番茄钟</button>
+    <button class="tu-tab-btn" data-tab="diary">📝 日记记账</button>
+    <button class="tu-tab-btn" data-tab="countdown">⏳ 倒计时</button>
+</nav>
+
+<!-- Content -->
+<main class="tu-main">
+
+    <!-- Calendar Tab -->
+    <section class="tu-section active" id="sec-calendar">
+        <div class="tu-calendar-header">
+            <div class="tu-calendar-title" id="calTitle">2026年6月</div>
+            <div class="tu-calendar-nav">
+                <button class="tu-btn tu-btn-sm tu-btn-ghost" id="calPrev">◀</button>
+                <button class="tu-btn tu-btn-sm tu-btn-ghost" id="calNext">▶</button>
+            </div>
+        </div>
+        <div class="tu-calendar-grid" id="calGrid"></div>
+        <div class="tu-calendar-events" id="calEventsList"></div>
+    </section>
+
+    <!-- Todo Tab -->
+    <section class="tu-section" id="sec-todo">
+        <div class="tu-flex-between tu-mb">
+            <select class="tu-select" style="width:auto" id="todoFilter">
+                <option value="">全部</option>
+                <option value="pending">待办</option>
+                <option value="doing">进行中</option>
+                <option value="done">已完成</option>
+            </select>
+            <button class="tu-btn tu-btn-primary tu-btn-sm" id="todoAddBtn">+ 新事项</button>
+        </div>
+        <div class="tu-card tu-mb" id="todoFormWrap" style="display:none">
+            <input type="hidden" id="todoId">
+            <div class="tu-form-group">
+                <label class="tu-form-label">标题</label>
+                <input class="tu-input" id="todoTitle" placeholder="待办事项...">
+            </div>
+            <div class="tu-form-group">
+                <label class="tu-form-label">优先级</label>
+                <select class="tu-select" id="todoPriority">
+                    <option value="0">无</option><option value="1">低</option>
+                    <option value="2">中</option><option value="3">高</option>
+                </select>
+            </div>
+            <div class="tu-form-group">
+                <label class="tu-form-label">状态</label>
+                <select class="tu-select" id="todoStatus">
+                    <option value="pending">待办</option>
+                    <option value="doing">进行中</option>
+                    <option value="done">已完成</option>
+                </select>
+            </div>
+            <div class="tu-form-group">
+                <label class="tu-form-label">截止日期</label>
+                <input type="datetime-local" class="tu-input" id="todoDeadline">
+            </div>
+            <div class="tu-flex tu-gap-sm">
+                <button class="tu-btn tu-btn-primary tu-btn-sm" id="todoSaveBtn">保存</button>
+                <button class="tu-btn tu-btn-ghost tu-btn-sm" id="todoCancelBtn">取消</button>
+            </div>
+        </div>
+        <div class="tu-todo-list" id="todoList"></div>
+    </section>
+
+    <!-- Pomodoro Tab -->
+    <section class="tu-section" id="sec-pomodoro">
+        <div class="tu-pomo-container">
+            <div class="tu-pomo-preset">
+                <button class="tu-btn tu-btn-sm tu-btn-ghost tu-pomo-preset-btn" data-minutes="15">15分</button>
+                <button class="tu-btn tu-btn-sm tu-btn-ghost tu-pomo-preset-btn" data-minutes="25">25分</button>
+                <button class="tu-btn tu-btn-sm tu-btn-ghost tu-pomo-preset-btn" data-minutes="45">45分</button>
+            </div>
+            <div class="tu-pomo-timer" id="pomoTimer">25:00</div>
+            <div class="tu-pomo-controls">
+                <button class="tu-btn tu-btn-primary" id="pomoStart">开始</button>
+                <button class="tu-btn tu-btn-ghost" id="pomoPause" style="display:none">暂停</button>
+                <button class="tu-btn tu-btn-ghost" id="pomoReset">重置</button>
+            </div>
+            <div class="tu-pomo-stats">
+                <div class="tu-pomo-stat">
+                    <div class="tu-pomo-stat-value" id="pomoTodayMinutes">0</div>
+                    <div class="tu-pomo-stat-label">今日专注分钟</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Diary+Ledger Tab -->
+    <section class="tu-section" id="sec-diary">
+        <!-- Ledger summary -->
+        <div class="tu-ledger-summary" id="ledgerSummary">
+            <div class="tu-ledger-summary-item expense">
+                <div class="tu-ledger-summary-value" id="sumExpense">¥0.00</div>
+                <div class="tu-ledger-summary-label">本月支出</div>
+            </div>
+            <div class="tu-ledger-summary-item income">
+                <div class="tu-ledger-summary-value" id="sumIncome">¥0.00</div>
+                <div class="tu-ledger-summary-label">本月收入</div>
+            </div>
+            <div class="tu-ledger-summary-item">
+                <div class="tu-ledger-summary-value" id="sumBalance">¥0.00</div>
+                <div class="tu-ledger-summary-label">月结余</div>
+            </div>
+            <div class="tu-ledger-summary-item">
+                <div class="tu-ledger-summary-value" id="sumSavings">¥0.00</div>
+                <div class="tu-ledger-summary-label">储蓄</div>
+            </div>
+        </div>
+
+        <!-- Diary editor -->
+        <div class="tu-card">
+            <div class="tu-diary-date-picker">
+                <input type="date" class="tu-input" id="diaryDate" style="width:auto">
+            </div>
+            <div class="tu-diary-mood">
+                <button class="tu-diary-mood-btn" data-mood="😊">😊</button>
+                <button class="tu-diary-mood-btn" data-mood="😐">😐</button>
+                <button class="tu-diary-mood-btn" data-mood="😢">😢</button>
+                <button class="tu-diary-mood-btn" data-mood="😡">😡</button>
+                <button class="tu-diary-mood-btn" data-mood="🤩">🤩</button>
+                <button class="tu-diary-mood-btn" data-mood="😴">😴</button>
+            </div>
+            <textarea class="tu-textarea" id="diaryContent" rows="12" placeholder="写日记...&#10;&#10;支持 Markdown 语法&#10;点击「插入记账」添加记账条目"></textarea>
+            <div class="tu-flex tu-gap-sm tu-mt">
+                <button class="tu-btn tu-btn-sm tu-btn-primary" id="diarySaveBtn">保存日记</button>
+                <button class="tu-btn tu-btn-sm tu-btn-ghost" id="insertLedgerBtn">💳 插入记账</button>
+            </div>
+        </div>
+        <div class="tu-card tu-mt">
+            <div class="tu-card-title">预览</div>
+            <div class="tu-diary-preview" id="diaryPreview"></div>
+        </div>
+
+        <!-- Ledger list -->
+        <div class="tu-card tu-mt">
+            <div class="tu-card-header">
+                <span class="tu-card-title">本月账目</span>
+                <button class="tu-btn tu-btn-xs tu-btn-ghost" id="ledgerAddBtn">+ 记账</button>
+            </div>
+            <div class="tu-card tu-mb" id="ledgerForm" style="display:none">
+                <div class="tu-form-group">
+                    <label class="tu-form-label">日期</label>
+                    <input type="date" class="tu-input" id="ledgerEntryDate">
+                </div>
+                <div class="tu-form-group">
+                    <label class="tu-form-label">类型</label>
+                    <select class="tu-select" id="ledgerType">
+                        <option value="expense">支出</option>
+                        <option value="income">收入</option>
+                    </select>
+                </div>
+                <div class="tu-form-group">
+                    <label class="tu-form-label">金额</label>
+                    <input type="number" step="0.01" class="tu-input" id="ledgerAmount" placeholder="0.00">
+                </div>
+                <div class="tu-form-group">
+                    <label class="tu-form-label">分类</label>
+                    <input class="tu-input" id="ledgerCategory" placeholder="餐饮/交通/购物...">
+                </div>
+                <div class="tu-form-group">
+                    <label class="tu-form-label">备注</label>
+                    <input class="tu-input" id="ledgerNote">
+                </div>
+                <div class="tu-flex tu-gap-sm">
+                    <button class="tu-btn tu-btn-primary tu-btn-sm" id="ledgerSaveBtn">保存</button>
+                    <button class="tu-btn tu-btn-ghost tu-btn-sm" id="ledgerCancelBtn">取消</button>
+                </div>
+            </div>
+            <div id="ledgerList"></div>
+        </div>
+    </section>
+
+    <!-- Countdown Tab -->
+    <section class="tu-section" id="sec-countdown">
+        <div class="tu-flex-between tu-mb">
+            <span></span>
+            <button class="tu-btn tu-btn-primary tu-btn-sm" id="cdAddBtn">+ 新倒计时</button>
+        </div>
+        <div class="tu-card tu-mb" id="cdForm" style="display:none">
+            <div class="tu-form-group">
+                <label class="tu-form-label">标题</label>
+                <input class="tu-input" id="cdTitle" placeholder="例如：项目截止">
+            </div>
+            <div class="tu-form-group">
+                <label class="tu-form-label">目标日期</label>
+                <input type="datetime-local" class="tu-input" id="cdTarget">
+            </div>
+            <div class="tu-flex tu-gap-sm">
+                <button class="tu-btn tu-btn-primary tu-btn-sm" id="cdSaveBtn">保存</button>
+                <button class="tu-btn tu-btn-ghost tu-btn-sm" id="cdCancelBtn">取消</button>
+            </div>
+        </div>
+        <div class="tu-countdown-list" id="cdList"></div>
+    </section>
+
+</main>
+
+<!-- Bottom Nav (Mobile) -->
+<nav class="tu-bottom-nav" id="bottomNav">
+    <button class="tu-tab-btn" data-tab="calendar">📅</button>
+    <button class="tu-tab-btn" data-tab="todo">✅</button>
+    <button class="tu-tab-btn" data-tab="pomodoro">⏱️</button>
+    <button class="tu-tab-btn" data-tab="diary">📝</button>
+    <button class="tu-tab-btn" data-tab="countdown">⏳</button>
+</nav>
+
+<script src="/lib/marked.min.js"></script>
+<script type="module" src="/js/main.js"></script>
+</body>
+</html>

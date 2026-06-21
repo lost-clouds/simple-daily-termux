@@ -1,0 +1,42 @@
+/* simple-daily-termux CSS variables - same palette as Blog-termux, square corners */
+:root {
+    /* base colors */
+    --accent:       #007aff;
+    --accent-hover: #005fc1;
+    --accent-soft:  rgba(0,122,255,0.1);
+
+    /* light theme */
+    --bg-primary:    #e8e8ed;
+    --bg-secondary:  #f5f5f7;
+    --text-primary:  #1c1c1e;
+    --text-secondary:#636366;
+    --text-tertiary: #aeaeb2;
+
+    /* glass morphism */
+    --glass-bg:       rgba(255,255,255,0.72);
+    --glass-bg-strong:rgba(255,255,255,0.88);
+    --glass-border:       rgba(0,0,0,0.06);
+    --glass-border-strong:rgba(0,0,0,0.10);
+
+    /* shadows */
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+    --shadow-lg: 0 8px 32px rgba(0,0,0,0.14);
+
+    /* square corners - the key difference from Blog-termux */
+    --radius-sm: 0;
+    --radius-md: 0;
+    --radius-lg: 0;
+    --radius-xl: 0;
+    --radius-full: 0;
+
+    /* fonts */
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+                 "Hiragino Sans GB", "Microsoft YaHei", "Helvetica Neue", Helvetica,
+                 Arial, sans-serif;
+    --font-mono: "SF Mono", "Fira Code", "Fira Mono", "Roboto Mono", "Consolas",
+                 "Courier New", monospace;
+
+    /* transitions */
+    --transition: 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.0);
+}

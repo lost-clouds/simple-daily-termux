@@ -1,0 +1,12 @@
+# Binary
+simple-daily-termux
+
+# Runtime data
+data/
+
+# Build artifacts
+web/css/.gitkeep
+
+# IDE
+.vscode/
+.idea/

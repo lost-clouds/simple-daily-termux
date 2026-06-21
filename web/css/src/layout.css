@@ -1,0 +1,107 @@
+.app-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+}
+
+/* header */
+.tu-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid var(--glass-border);
+    padding: 0.5rem 0;
+}
+
+.tu-header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 50px;
+}
+
+.tu-brand {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tu-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tu-theme-btn {
+    width: 36px; height: 36px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+    border-radius: 0;
+    background: var(--accent-soft);
+    color: var(--accent);
+    transition: var(--transition);
+}
+.tu-theme-btn:hover { background: var(--accent); color: #fff; }
+
+/* main content */
+.tu-main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+    min-height: calc(100vh - 130px);
+}
+
+/* tab bar */
+.tu-tab-bar {
+    display: flex;
+    gap: 0.25rem;
+    padding: 0.5rem 1rem;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid var(--glass-border);
+    overflow-x: auto;
+}
+
+.tu-tab-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    border-radius: 0;
+    transition: var(--transition);
+    white-space: nowrap;
+    display: flex; align-items: center; gap: 0.3rem;
+}
+.tu-tab-btn:hover { color: var(--text-primary); background: var(--accent-soft); }
+.tu-tab-btn.active { color: var(--accent); border-bottom: 2px solid var(--accent); }
+
+/* content sections */
+.tu-section {
+    display: none;
+    padding: 1rem 0;
+}
+.tu-section.active { display: block; }
+
+/* bottom nav (mobile) */
+.tu-bottom-nav {
+    display: none;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(255,255,255,0.96);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border-top: 1px solid var(--glass-border);
+    justify-content: space-around;
+    padding: 0.25rem 0;
+    z-index: 100;
+}

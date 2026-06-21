@@ -1,0 +1,16 @@
+{
+  "server": {
+    "addr": "127.0.0.1:8090",
+    "cors": false
+  },
+  "database": {
+    "driver": "sqlite",
+    "sqlite": {
+      "path": "./data/daily.db"
+    },
+    "mysql": {
+      "dsn": "user:password@tcp(127.0.0.1:3306)/daily?parseTime=true"
+    },
+    "timezone": "Local"
+  }
+}

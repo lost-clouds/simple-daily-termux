@@ -1,0 +1,16 @@
+.tu-pomo-container { text-align: center; padding: 2rem 0; }
+.tu-pomo-timer {
+    font-size: 4rem; font-weight: 300; font-variant-numeric: tabular-nums;
+    color: var(--text-primary); margin: 1.5rem 0;
+    font-family: var(--font-mono);
+}
+.tu-pomo-controls { display: flex; gap: 0.75rem; justify-content: center; margin-top: 1.5rem; }
+.tu-pomo-preset { display: flex; gap: 0.5rem; justify-content: center; margin-bottom: 1rem; }
+.tu-pomo-stats {
+    display: flex; justify-content: center; gap: 2rem;
+    margin-top: 2rem; padding-top: 1rem;
+    border-top: 1px solid var(--glass-border);
+}
+.tu-pomo-stat { text-align: center; }
+.tu-pomo-stat-value { font-size: 1.5rem; font-weight: 600; color: var(--accent); }
+.tu-pomo-stat-label { font-size: 0.75rem; color: var(--text-tertiary); }

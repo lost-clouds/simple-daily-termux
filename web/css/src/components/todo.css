@@ -1,0 +1,25 @@
+.tu-todo-list { display: flex; flex-direction: column; gap: 0.5rem; }
+.tu-todo-item {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.75rem;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 0;
+    transition: var(--transition);
+}
+.tu-todo-item:hover { box-shadow: var(--shadow-sm); }
+.tu-todo-item.done { opacity: 0.5; }
+.tu-todo-item.done .tu-todo-title { text-decoration: line-through; }
+.tu-todo-checkbox {
+    width: 20px; height: 20px; border-radius: 0;
+    border: 2px solid var(--glass-border-strong);
+    cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: var(--transition);
+}
+.tu-todo-checkbox.checked { background: var(--accent); border-color: var(--accent); }
+.tu-todo-checkbox.checked::after { content: '✓'; color: #fff; font-size: 0.75rem; }
+.tu-todo-content { flex: 1; min-width: 0; }
+.tu-todo-title { font-size: 0.9rem; font-weight: 500; }
+.tu-todo-meta { font-size: 0.72rem; color: var(--text-tertiary); margin-top: 0.15rem; }
+.tu-todo-actions { display: flex; gap: 0.25rem; flex-shrink: 0; }

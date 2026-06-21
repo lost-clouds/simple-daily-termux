@@ -1,0 +1,29 @@
+/* Tablet: 640-1023px */
+@media (min-width: 640px) and (max-width: 1023px) {
+    .tu-tab-btn { font-size: 0.8rem; padding: 0.4rem 0.7rem; }
+}
+
+/* Mobile: <=640px */
+@media (max-width: 639px) {
+    .tu-tab-bar { display: none; }
+    .tu-bottom-nav {
+        display: flex;
+        padding-bottom: env(safe-area-inset-bottom, 0.25rem);
+    }
+    .tu-main { padding-bottom: 4rem; }
+    .tu-tab-btn { font-size: 0.72rem; }
+    .tu-pomo-timer { font-size: 3rem; }
+}
+
+/* Small phone: <=400px */
+@media (max-width: 400px) {
+    .app-container { padding: 0 0.5rem; }
+    .tu-main { padding: 0.5rem; padding-bottom: 4rem; }
+    .tu-pomo-timer { font-size: 2.5rem; }
+}
+
+/* backdrop-filter fallback */
+@supports not (backdrop-filter: blur(20px)) {
+    .tu-header, .tu-tab-bar, .tu-bottom-nav { background: var(--glass-bg-strong); }
+    body.dark .tu-header, body.dark .tu-tab-bar, body.dark .tu-bottom-nav { background: var(--glass-bg-strong); }
+}

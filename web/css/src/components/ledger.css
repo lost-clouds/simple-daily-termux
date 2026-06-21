@@ -1,0 +1,44 @@
+/* ledger card in diary (rendered from ```ledger blocks) */
+.tu-ledger-card {
+    background: var(--glass-bg);
+    border: 1px solid var(--accent);
+    border-radius: 0;
+    padding: 0.6rem 0.75rem;
+    margin: 0.5rem 0;
+    font-size: 0.8rem;
+    display: flex; align-items: center; gap: 0.75rem;
+}
+.tu-ledger-card .tu-ledger-amount { font-weight: 600; font-size: 0.9rem; white-space: nowrap; }
+.tu-ledger-card .tu-ledger-category { color: var(--text-secondary); }
+.tu-ledger-card .tu-ledger-note { color: var(--text-tertiary); font-size: 0.72rem; }
+
+/* ledger summary card */
+.tu-ledger-summary {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+@media (min-width: 640px) {
+    .tu-ledger-summary { grid-template-columns: repeat(4, 1fr); }
+}
+.tu-ledger-summary-item {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 0;
+    padding: 0.75rem; text-align: center;
+}
+.tu-ledger-summary-value { font-size: 1.1rem; font-weight: 600; }
+.tu-ledger-summary-label { font-size: 0.72rem; color: var(--text-tertiary); }
+.tu-ledger-summary-item.income .tu-ledger-summary-value { color: #34c759; }
+.tu-ledger-summary-item.expense .tu-ledger-summary-value { color: #ff3b30; }
+
+/* ledger entry list */
+.tu-ledger-entry {
+    display: flex; align-items: center; gap: 0.75rem;
+    padding: 0.5rem 0; border-bottom: 1px solid var(--glass-border);
+    font-size: 0.82rem;
+}
+.tu-ledger-entry-date { color: var(--text-tertiary); font-size: 0.72rem; min-width: 5rem; }
+.tu-ledger-entry-category { flex: 1; }
+.tu-ledger-entry-amount { font-weight: 600; font-variant-numeric: tabular-nums; }

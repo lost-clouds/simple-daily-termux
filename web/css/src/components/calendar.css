@@ -1,0 +1,42 @@
+.tu-calendar-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 1rem;
+}
+.tu-calendar-title { font-size: 1.1rem; font-weight: 600; }
+.tu-calendar-nav { display: flex; gap: 0.25rem; }
+
+.tu-calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+.tu-calendar-day-header {
+    text-align: center; font-size: 0.72rem; font-weight: 600;
+    color: var(--text-tertiary); padding: 0.3rem 0;
+}
+.tu-calendar-day {
+    aspect-ratio: 1;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    font-size: 0.85rem;
+    cursor: pointer;
+    border-radius: 0;
+    transition: var(--transition);
+    position: relative;
+    min-height: 40px;
+}
+.tu-calendar-day:hover { background: var(--accent-soft); }
+.tu-calendar-day.other-month { color: var(--text-tertiary); opacity: 0.4; }
+.tu-calendar-day.today { font-weight: 700; color: var(--accent); }
+.tu-calendar-day.has-diary::after {
+    content: ''; position: absolute; bottom: 4px; width: 4px; height: 4px;
+    border-radius: 0; background: var(--accent);
+}
+/* calendar events list below the grid */
+.tu-calendar-events { margin-top: 1rem; }
+.tu-calendar-event-item {
+    display: flex; align-items: center; gap: 0.5rem;
+    padding: 0.4rem 0;
+    font-size: 0.8rem;
+    border-bottom: 1px solid var(--glass-border);
+}
+.tu-calendar-event-date { font-weight: 600; min-width: 3rem; }

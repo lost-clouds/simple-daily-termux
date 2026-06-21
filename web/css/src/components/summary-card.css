@@ -1,0 +1,42 @@
+/* Summary card - used in Blog-termux integration (class prefixed tu- to avoid conflicts) */
+.tu-summary-card {
+    grid-column: span 2;
+}
+.tu-summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.3rem 0.6rem;
+    margin-top: 0.3rem;
+}
+.tu-summary-item {
+    display: flex;
+    flex-direction: column;
+}
+.tu-summary-label {
+    font-size: 0.65rem;
+    color: var(--text-tertiary);
+}
+.tu-summary-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+}
+.tu-summary-footer {
+    flex-basis: 100%;
+    text-align: right;
+    margin-top: 0.4rem;
+    padding-top: 0.3rem;
+    border-top: 1px solid var(--glass-border);
+}
+.tu-summary-link {
+    font-size: 0.72rem;
+    color: var(--accent);
+    font-weight: 500;
+}
+.tu-summary-link:hover { color: var(--accent-hover); }
+
+@media (max-width: 639px) {
+    .tu-summary-card { grid-column: span 1; }
+    .tu-summary-grid { grid-template-columns: repeat(2, 1fr); }
+}

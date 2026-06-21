@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#f5f5f7">
+    <meta name="description" content="控制台">
+    <title>控制台</title>
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="lib/katex.min.css?v=2">
+    <link rel="stylesheet" href="lib/github-markdown.min.css?v=2">
+    <link rel="stylesheet" href="css/style.css?v=2">
+</head>
+<body>
+
+    <header class="header" id="header">
+        <div class="header-brand">
+            <span class="brand-icon">🏠</span>
+            <span>控制台</span>
+        </div>
+        <button class="theme-toggle-btn" id="themeToggleBtn" title="切换主题" aria-label="切换深色/浅色主题">🌙</button>
+    </header>
+
+    <div class="app-container">
+
+        <nav class="tab-bar" id="tabBar">
+            <button class="tab-btn active" data-tab="dashboard">
+                <span class="tab-icon">📊</span> <span>仪表盘</span>
+            </button>
+            <button class="tab-btn" data-tab="nav">
+                <span class="tab-icon">🧭</span> <span>导航</span>
+            </button>
+            <button class="tab-btn" data-tab="blog">
+                <span class="tab-icon">📝</span> <span>博客</span>
+            </button>
+            <button class="tab-btn" data-tab="gallery">
+                <span class="tab-icon">🖼️</span> <span>图库</span>
+            </button>
+        </nav>
+
+        <!-- 仪表盘：9 张卡片（原 8 张 + 日常概览） -->
+        <section class="content-section active" id="sec-dashboard">
+            <div class="dashboard-status-bar">
+                <span class="status-dot" id="statusDot"></span>
+                <span class="data-age" id="dataAge"></span>
+            </div>
+            <div class="dashboard-grid" id="dashboardGrid">
+
+                <!-- 1. 设备 -->
+                <div class="dash-card">
+                    <div class="dash-icon">📱</div>
+                    <div class="dash-info">
+                        <div class="dash-label">设备</div>
+                        <div class="dash-value" id="deviceValue">--</div>
+                        <div class="dash-sub" id="deviceSub"></div>
+                    </div>
+                </div>
+
+                <!-- 2. CPU -->
+                <div class="dash-card">
+                    <div class="dash-icon">🧠</div>
+                    <div class="dash-info">
+                        <div class="dash-label">CPU</div>
+                        <div class="dash-value" id="cpuValue">--</div>
+                        <div class="dash-sub" id="cpuSub"></div>
+                    </div>
+                    <div class="dash-bar"><div class="dash-fill" id="cpuFill"></div></div>
+                    <div class="dash-clusters" id="cpuClusters"></div>
+                </div>
+
+                <!-- 3. 内存 -->
+                <div class="dash-card">
+                    <div class="dash-icon">💾</div>
+                    <div class="dash-info">
+                        <div class="dash-label">内存</div>
+                        <div class="dash-value" id="memValue">--</div>
+                    </div>
+                    <div class="dash-bar"><div class="dash-fill" id="memFill"></div></div>
+                    <div class="dash-sub-row" id="swapRow" style="display:none">
+                        <span class="sub-label">SWAP</span>
+                        <span class="sub-fill-wrap"><span class="sub-fill" id="swapFill"></span></span>
+                        <span class="sub-value" id="swapValue">--</span>
+                    </div>
+                </div>
+
+                <!-- 4. 储存 -->
+                <div class="dash-card">
+                    <div class="dash-icon">🗄️</div>
+                    <div class="dash-info">
+                        <div class="dash-label">储存</div>
+                        <div class="dash-value" id="diskValue">--</div>
+                    </div>
+                    <div class="dash-bar"><div class="dash-fill" id="diskFill"></div></div>
+                </div>
+
+                <!-- 5. 网络 -->
+                <div class="dash-card">
+                    <div class="dash-icon">🌐</div>
+                    <div class="dash-info">
+                        <div class="dash-label">网络</div>
+                        <div class="dash-value" id="netValue">--</div>
+                        <div class="dash-sub" id="netSub"></div>
+                    </div>
+                </div>
+
+                <!-- 6. 电池 -->
+                <div class="dash-card">
+                    <div class="dash-icon">🔋</div>
+                    <div class="dash-info">
+                        <div class="dash-label">电池</div>
+                        <div class="dash-value" id="batteryValue">--</div>
+                        <div class="dash-sub" id="batterySub"></div>
+                    </div>
+                    <div class="dash-bar"><div class="dash-fill dash-fill-battery" id="batteryFill"></div></div>
+                </div>
+
+                <!-- 7. 服务 -->
+                <div class="dash-card">
+                    <div class="dash-icon">🔧</div>
+                    <div class="dash-info">
+                        <div class="dash-label">服务</div>
+                        <div class="dash-value" id="svcValue">--</div>
+                        <div class="dash-sub" id="svcSub"></div>
+                    </div>
+                </div>
+
+                <!-- 8. 运行时间 -->
+                <div class="dash-card">
+                    <div class="dash-icon">⏱️</div>
+                    <div class="dash-info">
+                        <div class="dash-label">运行时间</div>
+                        <div class="dash-value" id="uptimeValue">--</div>
+                    </div>
+                </div>
+
+                <!-- 9. 日常概览 (simple-daily-termux integration card) -->
+                <div class="dash-card tu-summary-card" id="summaryCard">
+                    <div class="dash-icon">📋</div>
+                    <div class="dash-info">
+                        <div class="dash-label">日常概览</div>
+                        <div class="tu-summary-grid" id="summaryGrid">
+                            <div class="tu-summary-item">
+                                <span class="tu-summary-label">本月支出</span>
+                                <span class="tu-summary-value" id="sumExpense">--</span>
+                            </div>
+                            <div class="tu-summary-item">
+                                <span class="tu-summary-label">本月收入</span>
+                                <span class="tu-summary-value" id="sumIncome">--</span>
+                            </div>
+                            <div class="tu-summary-item">
+                                <span class="tu-summary-label">月结余</span>
+                                <span class="tu-summary-value" id="sumBalance">--</span>
+                            </div>
+                            <div class="tu-summary-item">
+                                <span class="tu-summary-label">储蓄</span>
+                                <span class="tu-summary-value" id="sumSavings">--</span>
+                            </div>
+                            <div class="tu-summary-item">
+                                <span class="tu-summary-label">今日专注</span>
+                                <span class="tu-summary-value" id="sumFocus">--</span>
+                            </div>
+                            <div class="tu-summary-item">
+                                <span class="tu-summary-label">倒计时</span>
+                                <span class="tu-summary-value" id="sumCountdown">--</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tu-summary-footer">
+                        <a href="/update/" class="tu-summary-link">进入日常管理 →</a>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- 服务导航 -->
+        <section class="content-section" id="sec-nav">
+            <div class="section-search">
+                <input type="text" class="search-input" id="navSearch" placeholder="搜索服务…" autocomplete="off">
+            </div>
+            <div class="nav-grid" id="navGrid">
+                <div class="nav-empty">加载中...</div>
+            </div>
+        </section>
+
+        <!-- 博客 -->
+        <section class="content-section" id="sec-blog">
+            <input type="checkbox" class="blog-toggle" id="blog-menu-ctrl">
+            <input type="checkbox" class="blog-toggle" id="blog-toc-ctrl">
+            <div class="blog-header-mobile">
+                <label for="blog-menu-ctrl" class="blog-header-btn" aria-label="菜单">☰</label>
+                <span class="blog-header-title" id="blogTitle">博客</span>
+                <label for="blog-toc-ctrl" class="blog-header-btn" aria-label="目录">📑</label>
+            </div>
+            <div class="blog-layout">
+                <aside class="blog-sidebar" id="blogSidebar">
+                    <div class="blog-sidebar-search">
+                        <input type="text" class="search-input" id="blogSearch2" placeholder="搜索文章…" autocomplete="off">
+                    </div>
+                    <div class="blog-filter-bar" id="blogFilter">
+                        <button class="blog-filter-btn active" data-type="all">全部</button>
+                        <button class="blog-filter-btn" data-type="markdown">MD</button>
+                        <button class="blog-filter-btn" data-type="html">HTML</button>
+                    </div>
+                    <nav class="blog-nav" id="blogNav">
+                        <div class="blog-nav-loading">加载中...</div>
+                    </nav>
+                </aside>
+                <div class="blog-content" id="blogContent">
+                    <div class="blog-content-placeholder">
+                        <div class="blog-content-placeholder-icon">📝</div>
+                        <div>从左侧选择一篇文章</div>
+                    </div>
+                </div>
+                <aside class="blog-toc" id="blogToc">
+                    <div class="toc-empty">选择文章后显示目录</div>
+                </aside>
+            </div>
+            <label class="blog-sidebar-overlay" for="blog-menu-ctrl" id="blogSidebarOverlay"></label>
+        </section>
+
+        <!-- 图片画廊 -->
+        <section class="content-section" id="sec-gallery">
+            <div class="section-search">
+                <input type="text" class="search-input" id="gallerySearch" placeholder="搜索图片…" autocomplete="off">
+            </div>
+            <div class="gallery-grid" id="galleryGrid">
+                <div class="gallery-loading">加载中...</div>
+            </div>
+        </section>
+    </div>
+
+    <!-- 底部导航栏（移动端） -->
+    <nav class="bottom-nav" id="bottomNav">
+        <button class="tab-btn active" data-tab="dashboard">
+            <span class="tab-icon">📊</span> <span>仪表盘</span>
+        </button>
+        <button class="tab-btn" data-tab="nav">
+            <span class="tab-icon">🧭</span> <span>导航</span>
+        </button>
+        <button class="tab-btn" data-tab="blog">
+            <span class="tab-icon">📝</span> <span>博客</span>
+        </button>
+        <button class="tab-btn" data-tab="gallery">
+            <span class="tab-icon">🖼️</span> <span>图库</span>
+        </button>
+    </nav>
+
+    <!-- 图片灯箱 -->
+    <div class="lightbox" id="lightbox">
+        <button class="lightbox-close" aria-label="关闭">✕</button>
+        <img src="" alt="" id="lightboxImg">
+        <div class="lightbox-name" id="lightboxName"></div>
+    </div>
+
+    <script src="lib/marked.min.js?v=2"></script>
+    <script type="module" src="js/main.js?v=3"></script>
+    <script type="module">
+        import { UpdateWidget } from './js/update-widget.js';
+        UpdateWidget.init();
+    </script>
+
+</body>
+</html>
