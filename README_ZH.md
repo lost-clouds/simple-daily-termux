@@ -2,6 +2,8 @@
 
 [简体中文](README_ZH.md) | [English](README.md)
 
+[![CI](https://github.com/lost-clouds/simple-daily-termux/actions/workflows/ci.yml/badge.svg)](https://github.com/lost-clouds/simple-daily-termux/actions/workflows/ci.yml)
+
 轻量级个人时间管理应用，Go 后端 + 原生 JavaScript SPA 前端。集成 **TODO 待办**、**番茄钟**、**日记记账**、**日历聚合**、**倒计时** 五大模块，编译为单个二进制文件。设计上与 [Blog-termux](https://github.com/lost-clouds/Blog-termux) 通过 nginx 反代联动，在仪表盘新增第 9 张卡片展示日常概览。
 
 > 为 Android Termux 环境而生。纯 Go（零 CGO），单二进制部署，内存占用 <20MB。
@@ -16,10 +18,11 @@
 - [模块详解](#模块详解)
 - [部署教程](#部署教程)
   - [1. 环境要求](#1-环境要求)
-  - [2. 编译](#2-编译)
-  - [3. 配置文件](#3-配置文件)
-  - [4. 运行](#4-运行)
-  - [5. 与 Blog-termux 联动](#5-与-blog-termux-联动)
+  - [2. 下载预编译包](#2-下载预编译包)
+  - [3. 从源码编译](#3-从源码编译)
+  - [4. 配置文件](#4-配置文件)
+  - [5. 运行](#5-运行)
+  - [6. 与 Blog-termux 联动](#6-与-blog-termux-联动)
 - [API 参考](#api-参考)
 - [使用指南](#使用指南)
 - [常见问题](#常见问题)
@@ -28,29 +31,50 @@
 
 ## 快速开始
 
+**方式 A — 下载预编译包（推荐）：**
+
 ```bash
-# 1. 克隆项目
+# 从 Releases 页面下载对应平台的二进制包
+# 提供 linux-amd64 / linux-arm64 / linux-armv7 三种架构
+curl -sSLO https://github.com/lost-clouds/simple-daily-termux/releases/latest/download/simple-daily-termux-linux-arm64.tar.gz
+tar -xzf simple-daily-termux-linux-arm64.tar.gz
+# 包含：simple-daily-termux-linux-arm64、config.example.json、smoke.sh
+```
+
+**方式 B — 从源码编译：**
+
+```bash
+# 1. 克隆
 git clone https://github.com/lost-clouds/simple-daily-termux.git ~/simple-daily-termux
 cd ~/simple-daily-termux
 
-# 2. 编译（需要 Go 1.22+）
+# 2. 编译（Go 1.22+）
 go build -o simple-daily-termux .
 
-# 3. 创建配置文件
-cp config.example.json config.json
-# 按需编辑 config.json（默认：SQLite 数据库 ./data/daily.db，端口 8090）
+# 3. 构建 CSS
+bash web/css/build.sh
+```
 
-# 4. 启动
+**安装后操作：**
+
+```bash
+# 4. 创建配置
+cp config.example.json config.json
+# 按需编辑（默认：SQLite ./data/daily.db，端口 8090）
+
+# 5. 启动
 ./simple-daily-termux config.json
 # 服务运行于 http://127.0.0.1:8090
 ```
 
-运行冒烟测试验证所有端点：
+运行冒烟测试：
 
 ```bash
 bash scripts/smoke.sh
 # 12 项检查应全部 PASS
 ```
+
+> **当前版本**：[v0.0.1](https://github.com/lost-clouds/simple-daily-termux/releases/tag/v0.0.1)
 
 ---
 
@@ -338,13 +362,35 @@ Markdown 渲染使用 `marked.js`（含纯 JS 回退方案）。ledger 代码块
 
 > **无需**：Node.js、Python、PHP、Docker、C/C++ 工具链、GPU。
 
-### 2. 编译
+### 2. 下载预编译包
+
+预编译二进制文件发布在 [Releases](https://github.com/lost-clouds/simple-daily-termux/releases) 页面。
+
+| 平台 | 架构 | 文件 |
+|------|------|------|
+| Linux | amd64 (x86_64) | `simple-daily-termux-linux-amd64.tar.gz` |
+| Linux | arm64 (aarch64) | `simple-daily-termux-linux-arm64.tar.gz` |
+| Linux | armv7 (arm32) | `simple-daily-termux-linux-armv7.tar.gz` |
+
+每个压缩包包含编译好的二进制文件、`config.example.json` 和 `smoke.sh`。下载后可用 `.sha256` 文件校验完整性。
+
+```bash
+curl -sSLO https://github.com/lost-clouds/simple-daily-termux/releases/latest/download/simple-daily-termux-linux-arm64.tar.gz
+curl -sSLO https://github.com/lost-clouds/simple-daily-termux/releases/latest/download/simple-daily-termux-linux-arm64.tar.gz.sha256
+sha256sum -c simple-daily-termux-linux-arm64.tar.gz.sha256
+tar -xzf simple-daily-termux-linux-arm64.tar.gz
+```
+
+### 3. 从源码编译
 
 ```bash
 cd ~/simple-daily-termux
 
 # 下载 Go 依赖（需要网络）
-GOPROXY=https://goproxy.cn,direct go mod tidy
+go mod tidy
+
+# 构建 CSS
+bash web/css/build.sh
 
 # 编译
 go build -o simple-daily-termux .
@@ -353,14 +399,14 @@ go build -o simple-daily-termux .
 ./simple-daily-termux --help  # (接受 config 路径作为参数)
 ```
 
-交叉编译（零 CGO）：
+交叉编译（零 CGO，无需额外工具链）：
 
 ```bash
 GOOS=linux GOARCH=arm64 go build -o simple-daily-termux .
 GOOS=linux GOARCH=amd64 go build -o simple-daily-termux .
 ```
 
-### 3. 配置文件
+### 4. 配置文件
 
 复制并编辑 `config.json`：
 
@@ -387,7 +433,7 @@ GOOS=linux GOARCH=amd64 go build -o simple-daily-termux .
 | `database.mysql.dsn` | — | MySQL 连接串（`driver=mysql` 时使用） |
 | `database.timezone` | `Local` | 番茄钟"今日"计算的时区 |
 
-### 4. 运行
+### 5. 运行
 
 **手动启动：**
 
@@ -417,7 +463,7 @@ bash scripts/smoke.sh
 # */5 * * * * cd ~/simple-daily-termux && bash scripts/start.sh
 ```
 
-### 5. 与 Blog-termux 联动
+### 6. 与 Blog-termux 联动
 
 **Step 1 — 添加 nginx 反代规则**
 

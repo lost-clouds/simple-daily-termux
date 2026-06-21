@@ -2,6 +2,8 @@
 
 [简体中文](README_ZH.md) | [English](README.md)
 
+[![CI](https://github.com/lost-clouds/simple-daily-termux/actions/workflows/ci.yml/badge.svg)](https://github.com/lost-clouds/simple-daily-termux/actions/workflows/ci.yml)
+
 A lightweight personal time management application with Go backend and vanilla JavaScript SPA frontend. Integrates **TODO list**, **Pomodoro timer**, **Diary+Ledger**, **Calendar**, and **Countdown** into a single binary. Designed to work alongside [Blog-termux](https://github.com/lost-clouds/Blog-termux) via nginx reverse proxy, adding a 9th dashboard card that shows daily summary data.
 
 > Built for Termux on Android. Pure Go (zero CGO), single binary deployment, <20MB footprint.
@@ -16,10 +18,11 @@ A lightweight personal time management application with Go backend and vanilla J
 - [Module Reference](#module-reference)
 - [Deployment Guide](#deployment-guide)
   - [1. Requirements](#1-requirements)
-  - [2. Build](#2-build)
-  - [3. Configure](#3-configure)
-  - [4. Run](#4-run)
-  - [5. Integration with Blog-termux](#5-integration-with-blog-termux)
+  - [2. Download Pre-built Binary](#2-download-pre-built-binary)
+  - [3. Build from Source](#3-build-from-source)
+  - [4. Configure](#4-configure)
+  - [5. Run](#5-run)
+  - [6. Integration with Blog-termux](#6-integration-with-blog-termux)
 - [API Reference](#api-reference)
 - [Usage](#usage)
 - [FAQ](#faq)
@@ -28,29 +31,50 @@ A lightweight personal time management application with Go backend and vanilla J
 
 ## Quick Start
 
+**Option A — Download pre-built binary (recommended):**
+
 ```bash
-# 1. Clone the project
+# Download the latest release for your platform
+# linux-amd64 / linux-arm64 / linux-armv7 available
+curl -sSLO https://github.com/lost-clouds/simple-daily-termux/releases/latest/download/simple-daily-termux-linux-arm64.tar.gz
+tar -xzf simple-daily-termux-linux-arm64.tar.gz
+# Contains: simple-daily-termux-linux-arm64, config.example.json, smoke.sh
+```
+
+**Option B — Build from source:**
+
+```bash
+# 1. Clone
 git clone https://github.com/lost-clouds/simple-daily-termux.git ~/simple-daily-termux
 cd ~/simple-daily-termux
 
-# 2. Build (requires Go 1.22+)
+# 2. Build (Go 1.22+)
 go build -o simple-daily-termux .
 
-# 3. Create config
-cp config.example.json config.json
-# Edit config.json if needed (default: SQLite at ./data/daily.db, port 8090)
-
-# 4. Run
-./simple-daily-termux config.json
-# Server starts at http://127.0.0.1:8090
+# 3. Build CSS
+bash web/css/build.sh
 ```
 
-Run the smoke test to verify all endpoints:
+**After install:**
+
+```bash
+# 4. Create config
+cp config.example.json config.json
+# Edit if needed (default: SQLite at ./data/daily.db, port 8090)
+
+# 5. Run
+./simple-daily-termux config.json
+# Listening on http://127.0.0.1:8090
+```
+
+Run the smoke test:
 
 ```bash
 bash scripts/smoke.sh
 # All 12 checks should PASS
 ```
+
+> **Version**: Current release — [v0.0.1](https://github.com/lost-clouds/simple-daily-termux/releases/tag/v0.0.1)
 
 ---
 
@@ -336,13 +360,35 @@ Lightweight endpoint designed for the 9th dashboard card in Blog-termux:
 
 > **NOT required**: Node.js, Python, PHP, Docker, C/C++ toolchain, GPU.
 
-### 2. Build
+### 2. Download Pre-built Binary
+
+Pre-built binaries are available on the [Releases](https://github.com/lost-clouds/simple-daily-termux/releases) page.
+
+| Platform | Architecture | File |
+|----------|-------------|------|
+| Linux | amd64 (x86_64) | `simple-daily-termux-linux-amd64.tar.gz` |
+| Linux | arm64 (aarch64) | `simple-daily-termux-linux-arm64.tar.gz` |
+| Linux | armv7 (arm32) | `simple-daily-termux-linux-armv7.tar.gz` |
+
+Each archive contains the compiled binary, `config.example.json`, and `smoke.sh`. Verify the download with the accompanying `.sha256` file.
+
+```bash
+curl -sSLO https://github.com/lost-clouds/simple-daily-termux/releases/latest/download/simple-daily-termux-linux-arm64.tar.gz
+curl -sSLO https://github.com/lost-clouds/simple-daily-termux/releases/latest/download/simple-daily-termux-linux-arm64.tar.gz.sha256
+sha256sum -c simple-daily-termux-linux-arm64.tar.gz.sha256
+tar -xzf simple-daily-termux-linux-arm64.tar.gz
+```
+
+### 3. Build from Source
 
 ```bash
 cd ~/simple-daily-termux
 
 # Download Go dependencies (requires network)
-GOPROXY=https://goproxy.cn,direct go mod tidy
+go mod tidy
+
+# Build CSS
+bash web/css/build.sh
 
 # Build
 go build -o simple-daily-termux .
@@ -351,14 +397,14 @@ go build -o simple-daily-termux .
 ./simple-daily-termux --help  # (accepts config path as argument)
 ```
 
-Cross-compilation (no CGO):
+Cross-compilation (zero CGO, no toolchain needed):
 
 ```bash
 GOOS=linux GOARCH=arm64 go build -o simple-daily-termux .
 GOOS=linux GOARCH=amd64 go build -o simple-daily-termux .
 ```
 
-### 3. Configure
+### 4. Configure
 
 Copy and edit `config.json`:
 
@@ -385,7 +431,7 @@ Copy and edit `config.json`:
 | `database.mysql.dsn` | — | MySQL DSN (when `driver=mysql`) |
 | `database.timezone` | `Local` | Timezone for pomodoro "today" calculations |
 
-### 4. Run
+### 5. Run
 
 **Manual start:**
 
@@ -415,7 +461,7 @@ Add to crontab for auto-restart:
 # */5 * * * * cd ~/simple-daily-termux && bash scripts/start.sh
 ```
 
-### 5. Integration with Blog-termux
+### 6. Integration with Blog-termux
 
 **Step 1 — Add nginx proxy rules**
 

@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    name: Build & Smoke Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: 'go.mod'
+
+      - name: Build CSS
+        run: bash web/css/build.sh
+
+      - name: Build
+        run: go build -o simple-daily-termux .
+
+      - name: Smoke Test
+        run: |
+          mkdir -p data
+          ./simple-daily-termux config.example.json &
+          sleep 2
+          bash scripts/smoke.sh
+          kill %1 2>/dev/null; wait 2>/dev/null
+
+      - name: Vet
+        run: go vet ./...
