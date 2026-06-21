@@ -392,4 +392,4 @@ The SPA uses relative paths. Ensure nginx has `location /update/ { proxy_pass ht
 ## Links
 
 - [Blog-termux](https://github.com/lost-clouds/Blog-termux) — companion dashboard
-- [Releases](https://github.com/lost-clouds/simple-daily-termux/releases)
+- [Linux.do](https://linux.do)
