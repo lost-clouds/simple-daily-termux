@@ -1,3 +1,4 @@
+// Diary editor: Markdown with live preview, mood picker, embedded ledger block rendering.
 import { API } from './constants.js';
 import { esc } from './utils.js';
 
@@ -10,7 +11,35 @@ const onSaveCallbacks = [];
 function init() {
   var el=document.getElementById('diaryDate'); if(el){el.value=_currentDate;el.addEventListener('change',function(){_currentDate=this.value;loadDiary();});}
   el=document.getElementById('diarySaveBtn'); if(el) el.addEventListener('click',saveDiary);
+  el=document.getElementById('diaryExportBtn'); if(el) el.addEventListener('click',_exportMD);
+  el=document.getElementById('diaryImportBtn'); if(el) el.addEventListener('click',_onImportClick);
   document.querySelectorAll('.tu-diary-mood-btn').forEach(function(b){b.addEventListener('click',function(){document.querySelectorAll('.tu-diary-mood-btn').forEach(function(x){x.classList.remove('active');});this.classList.add('active');});});
+}
+
+// -- export/import --
+async function _exportMD() {
+  var m=_currentDate.substring(0,7);
+  var resp=await fetch(API.DIARY_EXPORT+'?month='+m);
+  if(!resp.ok) return;
+  var blob=await resp.blob();
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='diary-'+m+'.md';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function _onImportClick() {
+  var input=document.createElement('input');
+  input.type='file'; input.accept='.md,.txt';
+  input.onchange=function(){ if(this.files[0]) _importMD(this.files[0]); };
+  input.click();
+}
+async function _importMD(file) {
+  var form=new FormData(); form.append('file',file);
+  var resp=await fetch(API.DIARY_IMPORT,{method:'POST',body:form});
+  var json=await resp.json();
+  if(json.ok){ alert('导入 '+json.data.imported+' 条日记'); loadDiary(); }
+  else alert('导入失败: '+(json.error||'未知错误'));
 }
 
 function abort() { if(_abortController){_abortController.abort();_abortController=null;} }

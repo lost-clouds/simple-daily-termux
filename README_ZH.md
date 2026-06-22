@@ -33,12 +33,12 @@
 **方式 A — 下载预编译包（推荐）：**
 
 ```bash
-# 支持 linux-amd64 / linux-arm64 / linux-armv7
+# 支持 linux-amd64 / linux-arm64
 curl -sSLO https://github.com/lost-clouds/simple-daily-termux/releases/latest/download/simple-daily-termux-linux-arm64.tar.gz
 tar -xzf simple-daily-termux-linux-arm64.tar.gz
 ```
 
-**方式 B — 从源码编译（需要 Go 1.22+）：**
+**方式 B — 从源码编译（需要 Go 1.25+）：**
 
 ```bash
 git clone https://github.com/lost-clouds/simple-daily-termux.git
@@ -63,7 +63,7 @@ bash scripts/smoke.sh          # 12 项 API 检查
 # 全部 PASS 即可使用
 ```
 
-> 当前版本：[v0.0.2](https://github.com/lost-clouds/simple-daily-termux/releases/tag/v0.0.2)
+> 当前版本：[v0.0.4](https://github.com/lost-clouds/simple-daily-termux/releases/tag/v0.0.4)
 
 ---
 
@@ -71,12 +71,60 @@ bash scripts/smoke.sh          # 12 项 API 检查
 
 | 层级 | 技术选型 |
 |------|----------|
-| 语言 | Go 1.22+ |
+| 语言 | Go 1.25+ |
 | HTTP | `net/http` 标准库（`http.ServeMux` 模式路由，零框架） |
 | 数据库 | SQLite（`modernc.org/sqlite`，纯 Go 零 CGO）/ MySQL 可选 |
 | 前端 | 原生 ES Modules（无打包器）、CSS 自定义属性（cat 合并）、`marked.js` |
 | 静态资源 | `go:embed` — 前端嵌入二进制 |
 | 进程管理 | PID 文件 + `start.sh` / `stop.sh`（不依赖 systemd） |
+
+### 目录结构
+
+```
+simple-daily-termux/
+├── main.go                     # 入口 — DI 依赖注入、路由注册、优雅关闭
+├── config.json / config.example.json
+├── internal/
+│   ├── config/config.go        # 配置加载与校验
+│   ├── dateutil/dateutil.go    # 日期/时间工具（解析、格式化、月末）
+│   ├── idgen/idgen.go          # crypto/rand ID 生成
+│   ├── httputil/response.go    # 统一 JSON 响应封装
+│   ├── store/sqlstore/         # 持久化层
+│   │   ├── store.go            # Store 接口 + SQLStore 结构体 + 共享辅助函数
+│   │   ├── sqlite.go           # SQLite 驱动 (NewSQLite)
+│   │   ├── mysql.go            # MySQL 驱动 (NewMySQL)
+│   │   ├── migrations.go       # DDL 模式（7 张表 + 索引）
+│   │   ├── todo_repo.go        # TODO 仓库
+│   │   ├── countdown_repo.go   # 倒计时仓库
+│   │   ├── pomodoro_repo.go    # 番茄钟仓库
+│   │   ├── diary_repo.go       # 日记仓库
+│   │   ├── ledger_repo.go      # 记账仓库
+│   │   ├── calendar_repo.go    # 日历仓库
+│   │   └── settings_repo.go    # 设置键值仓库
+│   ├── todo/       {model, service, handler}.go
+│   ├── countdown/  {model, service, handler}.go
+│   ├── pomodoro/   {model, service, handler}.go
+│   ├── diary/      {model, service, handler, ledgerparser}.go
+│   ├── ledger/     {model, service, handler}.go
+│   ├── calendar/   {model, service, handler}.go
+│   └── summary/    {service, handler}.go
+├── web/                         # go:embed → 编译进二进制
+│   ├── index.html               # SPA（6 个 tab：首页、日历、待办、番茄钟、日记、倒计时）
+│   ├── blog-termux-index.html   # Blog-termux 联动 HTML（仪表盘第 9 格卡片）
+│   ├── css/  src/*.css + build.sh + style.css
+│   ├── js/   main.js + 7 个模块 + theme.js + utils.js
+│   └── lib/  marked.min.js
+├── example/                     # Nginx 配置模板
+│   ├── standalone.conf          # 独立部署
+│   └── integration.conf         # Blog-termux 联动片段
+├── scripts/
+│   ├── start.sh / stop.sh       # 进程管理
+│   ├── smoke.sh                 # curl 健康检查
+│   └── deploy-to-blog.sh        # 部署联动 HTML 到 Blog-termux
+└── .github/workflows/
+    ├── ci.yml                   # push/PR 触发构建 + 冒烟测试
+    └── release.yml              # tag 触发交叉编译 + GitHub Release
+```
 
 ### 模块依赖图
 
@@ -200,7 +248,7 @@ bash scripts/smoke.sh
 **Step 3 — 部署集成文件：**
 
 ```bash
-cp web/blog-termux-index.html /path/to/Blog-termux/index.html
+bash scripts/deploy-to-blog.sh /path/to/Blog-termux
 ```
 summary 卡片组件已内联到 HTML 中，无需额外部署 JS 文件。
 
@@ -315,6 +363,7 @@ bash scripts/smoke.sh
 ### 设计原则
 
 - **Go 零包级可变状态** — 全部依赖构造函数注入，导出/非导出可见性强制模块边界
+- **按模块拆分仓库** — 存储层按领域拆分为独立 `*_repo.go` 文件，背后是统一的 `Store` 组合接口
 - **ES Module 作用域隔离** — 每个 JS 文件独立模块，无全局命名空间污染
 - **CSS tu- 前缀** — 所有自定义类名前缀 `tu-`，嵌入 Blog-termux 时不冲突
 - **金额整数分存储** — `amount_cents int64`，前端边界转换

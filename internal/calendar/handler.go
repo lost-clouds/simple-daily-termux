@@ -3,10 +3,9 @@ package calendar
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
-	"strings"
 	"time"
 
+	"simple-daily-termux/internal/dateutil"
 	"simple-daily-termux/internal/httputil"
 )
 
@@ -24,7 +23,7 @@ func RegisterHandler(mux *http.ServeMux, svc *Service) {
 
 func (h *Handler) GetMonthView(w http.ResponseWriter, r *http.Request) {
 	month := r.URL.Query().Get("month")
-	year, mon := parseYM(month)
+	year, mon := dateutil.ParseYearMonth(month)
 	if year == 0 {
 		now := time.Now()
 		year, mon = now.Year(), int(now.Month())
@@ -124,17 +123,4 @@ func (h *Handler) DeleteEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	httputil.JSON(w, http.StatusOK, nil)
-}
-
-func parseYM(val string) (int, int) {
-	if val == "" {
-		return 0, 0
-	}
-	parts := strings.SplitN(val, "-", 2)
-	if len(parts) != 2 {
-		return 0, 0
-	}
-	y, _ := strconv.Atoi(parts[0])
-	m, _ := strconv.Atoi(parts[1])
-	return y, m
 }

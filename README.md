@@ -33,12 +33,12 @@ A lightweight personal time management application — Go backend + vanilla Java
 **Option A — Download pre-built binary (recommended):**
 
 ```bash
-# linux-amd64 / linux-arm64 / linux-armv7 available
+# linux-amd64 / linux-arm64 available
 curl -sSLO https://github.com/lost-clouds/simple-daily-termux/releases/latest/download/simple-daily-termux-linux-arm64.tar.gz
 tar -xzf simple-daily-termux-linux-arm64.tar.gz
 ```
 
-**Option B — Build from source (Go 1.22+):**
+**Option B — Build from source (Go 1.25+):**
 
 ```bash
 git clone https://github.com/lost-clouds/simple-daily-termux.git
@@ -63,7 +63,7 @@ bash scripts/smoke.sh          # 12 API endpoint checks
 # All PASS → ready to use
 ```
 
-> Current release: [v0.0.2](https://github.com/lost-clouds/simple-daily-termux/releases/tag/v0.0.2)
+> Current release: [v0.0.4](https://github.com/lost-clouds/simple-daily-termux/releases/tag/v0.0.4)
 
 ---
 
@@ -73,7 +73,7 @@ bash scripts/smoke.sh          # 12 API endpoint checks
 
 | Layer | Technology |
 |-------|-----------|
-| Language | Go 1.22+ |
+| Language | Go 1.25+ |
 | HTTP | `net/http` (zero framework, `http.ServeMux` pattern routing) |
 | Database | SQLite (`modernc.org/sqlite`, pure Go, zero CGO) / MySQL optional |
 | Frontend | Vanilla ES Modules (no bundler), CSS custom properties (cat merge), `marked.js` |
@@ -88,9 +88,21 @@ simple-daily-termux/
 ├── config.json / config.example.json
 ├── internal/
 │   ├── config/config.go        # Config loading + validation
+│   ├── dateutil/dateutil.go    # Shared date/time helpers (parse, format, last day)
 │   ├── idgen/idgen.go          # crypto/rand ID generation
 │   ├── httputil/response.go    # Unified JSON envelope
-│   ├── store/sqlstore/         # SQLite/MySQL implementation (Store interface + migrations)
+│   ├── store/sqlstore/         # Persistence layer
+│   │   ├── store.go            # Store interface + SQLStore struct + shared helpers
+│   │   ├── sqlite.go           # SQLite driver (NewSQLite)
+│   │   ├── mysql.go            # MySQL driver (NewMySQL)
+│   │   ├── migrations.go       # DDL schemas (7 tables + indexes)
+│   │   ├── todo_repo.go        # TODO repository
+│   │   ├── countdown_repo.go   # Countdown repository
+│   │   ├── pomodoro_repo.go    # Pomodoro repository
+│   │   ├── diary_repo.go       # Diary repository
+│   │   ├── ledger_repo.go      # Ledger repository
+│   │   ├── calendar_repo.go    # Calendar repository
+│   │   └── settings_repo.go    # Settings KV repository
 │   ├── todo/       {model, service, handler}.go
 │   ├── countdown/  {model, service, handler}.go
 │   ├── pomodoro/   {model, service, handler}.go
@@ -102,14 +114,15 @@ simple-daily-termux/
 │   ├── index.html               # SPA (6 tabs: home, calendar, todo, pomodoro, diary, countdown)
 │   ├── blog-termux-index.html   # Blog-termux integration HTML (9th dashboard card)
 │   ├── css/  src/*.css + build.sh + style.css
-│   ├── js/   app.js + 7 modules + theme.js + utils.js
+│   ├── js/   main.js + 7 modules + theme.js + utils.js
 │   └── lib/  marked.min.js
 ├── example/                     # Nginx config templates
 │   ├── standalone.conf          # Independent deployment
 │   └── integration.conf         # Blog-termux integration snippet
 ├── scripts/
 │   ├── start.sh / stop.sh       # Process management
-│   └── smoke.sh                 # curl health check
+│   ├── smoke.sh                 # curl health check
+│   └── deploy-to-blog.sh        # Deploy integration HTML to Blog-termux
 └── .github/workflows/
     ├── ci.yml                   # Build + smoke test on push/PR
     └── release.yml              # Cross-compile + GitHub Release on tag
@@ -237,7 +250,7 @@ Copy the content of [example/integration.conf](example/integration.conf) into Bl
 **Step 3 — Deploy the integration file:**
 
 ```bash
-cp web/blog-termux-index.html /path/to/Blog-termux/index.html
+bash scripts/deploy-to-blog.sh /path/to/Blog-termux
 ```
 The summary card widget is inlined — no separate JS file to deploy.
 
@@ -352,6 +365,7 @@ bash scripts/smoke.sh
 ### Design Principles
 
 - **Zero package-level mutable state** in Go — all deps injected via constructors, exported/unexported visibility enforces boundaries
+- **Per-module repository pattern** — store layer split into individual `*_repo.go` files behind a composite `Store` interface
 - **ES Module scope isolation** — every JS file is a separate module, no global namespace pollution
 - **CSS tu- prefix** — all custom classes prefixed to avoid conflicts when embedded in Blog-termux
 - **Money in integer cents** — `amount_cents int64`, converted on the frontend boundary

@@ -1,3 +1,4 @@
+// Ledger: monthly income/expense tracking with summary bar and entry list.
 import { API } from './constants.js';
 import { esc } from './utils.js';
 
@@ -9,6 +10,34 @@ function init() {
   var el=document.getElementById('ledgerAddBtn'); if(el) el.addEventListener('click',showForm);
   el=document.getElementById('ledgerSaveBtn'); if(el) el.addEventListener('click',saveEntry);
   el=document.getElementById('ledgerCancelBtn'); if(el) el.addEventListener('click',hideForm);
+  el=document.getElementById('ledgerExportBtn'); if(el) el.addEventListener('click',_exportCSV);
+  el=document.getElementById('ledgerImportBtn'); if(el) el.addEventListener('click',_onImportClick);
+}
+
+// -- export/import --
+async function _exportCSV() {
+  var now=new Date(), m=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0');
+  var resp=await fetch(API.LEDGER_EXPORT+'?month='+m);
+  if(!resp.ok) return;
+  var blob=await resp.blob();
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='ledger-'+m+'.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function _onImportClick() {
+  var input=document.createElement('input');
+  input.type='file'; input.accept='.csv,.txt';
+  input.onchange=function(){ if(this.files[0]) _importCSV(this.files[0]); };
+  input.click();
+}
+async function _importCSV(file) {
+  var form=new FormData(); form.append('file',file);
+  var resp=await fetch(API.LEDGER_IMPORT,{method:'POST',body:form});
+  var json=await resp.json();
+  if(json.ok){ alert('导入 '+json.data.imported+' 条记录'); fetchSummary(); fetchList(); }
+  else alert('导入失败: '+(json.error||'未知错误'));
 }
 
 function abort() { if(_abortController){_abortController.abort();_abortController=null;} }

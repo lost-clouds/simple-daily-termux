@@ -190,6 +190,10 @@
           </div>
           <textarea class="tu-textarea" id="diaryContent" rows="14" placeholder="写日记... Markdown 语法"></textarea>
           <button class="tu-btn tu-btn-sm tu-btn-primary tu-mt" id="diarySaveBtn">保存日记</button>
+          <div style="margin-top:0.3rem;display:flex;gap:0.3rem">
+            <button class="tu-btn tu-btn-sm tu-btn-ghost" id="diaryExportBtn">导出MD</button>
+            <button class="tu-btn tu-btn-sm tu-btn-ghost" id="diaryImportBtn">导入MD</button>
+          </div>
         </div>
         <div class="tu-diary-preview-wrap">
           <div class="tu-panel-header" style="border-bottom:none;padding-bottom:0.3rem;">预览</div>
@@ -202,6 +206,8 @@
         <div class="tu-panel-header">
           <span>记账</span>
           <button class="tu-btn tu-btn-xs tu-btn-ghost" id="ledgerAddBtn">+ 记账</button>
+          <button class="tu-btn tu-btn-xs tu-btn-ghost" id="ledgerExportBtn">导出CSV</button>
+          <button class="tu-btn tu-btn-xs tu-btn-ghost" id="ledgerImportBtn">导入CSV</button>
         </div>
         <div id="ledgerForm" style="display:none;margin-bottom:0.5rem;padding:0.5rem;background:var(--cell-bg);border-radius:var(--radius-sm);">
           <div style="display:flex;gap:0.5rem">

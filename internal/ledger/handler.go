@@ -2,11 +2,13 @@ package ledger
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"math"
 	"net/http"
-	"strconv"
-	"strings"
+	"time"
 
+	"simple-daily-termux/internal/dateutil"
 	"simple-daily-termux/internal/httputil"
 )
 
@@ -21,6 +23,8 @@ func RegisterHandler(mux *http.ServeMux, svc *Service) {
 	mux.HandleFunc("GET /api/ledger/summary", h.MonthlySummary)
 	mux.HandleFunc("POST /api/ledger", h.Create)
 	mux.HandleFunc("DELETE /api/ledger/{id}", h.Delete)
+	mux.HandleFunc("GET /api/ledger/export", h.ExportCSV)
+	mux.HandleFunc("POST /api/ledger/import", h.ImportCSV)
 }
 
 func RegisterSettingsHandler(mux *http.ServeMux, svc *Service) {
@@ -29,8 +33,7 @@ func RegisterSettingsHandler(mux *http.ServeMux, svc *Service) {
 }
 
 func (h *Handler) ListByMonth(w http.ResponseWriter, r *http.Request) {
-	year, month, err := parseMonth(r.URL.Query().Get("month"))
-	if err != nil { httputil.Error(w, 400, "invalid month"); return }
+	year, month := parseMonthDefault(r.URL.Query().Get("month"))
 	entries, err := h.svc.ListByMonth(r.Context(), year, month)
 	if err != nil { httputil.Error(w, 500, err.Error()); return }
 	if entries == nil { entries = []*Entry{} }
@@ -44,8 +47,7 @@ func (h *Handler) Get(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) MonthlySummary(w http.ResponseWriter, r *http.Request) {
-	year, month, err := parseMonth(r.URL.Query().Get("month"))
-	if err != nil { httputil.Error(w, 400, "invalid month"); return }
+	year, month := parseMonthDefault(r.URL.Query().Get("month"))
 	summary, err := h.svc.MonthlySummary(r.Context(), year, month)
 	if err != nil { httputil.Error(w, 500, err.Error()); return }
 	httputil.JSON(w, 200, summary)
@@ -83,12 +85,53 @@ func (h *Handler) Delete(w http.ResponseWriter, r *http.Request) {
 	httputil.JSON(w, 200, nil)
 }
 
-func parseMonth(val string) (int, int, error) {
-	if val == "" { return 0, 0, nil }
-	parts := strings.SplitN(val, "-", 2)
-	if len(parts) != 2 { return 0, 0, nil }
-	year, err := strconv.Atoi(parts[0])
-	if err != nil { return 0, 0, err }
-	month, err := strconv.Atoi(parts[1])
-	return year, month, err
+// ExportCSV returns a month's ledger entries as a downloadable CSV file.
+func (h *Handler) ExportCSV(w http.ResponseWriter, r *http.Request) {
+	year, month := parseMonthDefault(r.URL.Query().Get("month"))
+	csv, err := h.svc.ExportMonthCSV(r.Context(), year, month)
+	if err != nil {
+		httputil.Error(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
+	w.Header().Set("Content-Disposition",
+		fmt.Sprintf(`attachment; filename="ledger-%04d-%02d.csv"`, year, month))
+	w.Write([]byte(csv))
+}
+
+// ImportCSV accepts a CSV file upload and imports ledger entries from it.
+func (h *Handler) ImportCSV(w http.ResponseWriter, r *http.Request) {
+	if err := r.ParseMultipartForm(10 << 20); err != nil {
+		httputil.Error(w, http.StatusBadRequest, "failed to parse form (max 10MB)")
+		return
+	}
+	file, _, err := r.FormFile("file")
+	if err != nil {
+		httputil.Error(w, http.StatusBadRequest, "file field is required")
+		return
+	}
+	defer file.Close()
+
+	content, err := io.ReadAll(file)
+	if err != nil {
+		httputil.Error(w, http.StatusInternalServerError, "failed to read file")
+		return
+	}
+
+	count, err := h.svc.ImportCSV(r.Context(), string(content))
+	if err != nil {
+		httputil.Error(w, http.StatusInternalServerError, err.Error())
+		return
+	}
+	httputil.JSON(w, http.StatusOK, map[string]int{"imported": count})
+}
+
+// parseMonthDefault parses "YYYY-MM" with fallback to the current month.
+func parseMonthDefault(val string) (int, int) {
+	y, m := dateutil.ParseYearMonth(val)
+	if y == 0 {
+		now := time.Now()
+		y, m = now.Year(), int(now.Month())
+	}
+	return y, m
 }

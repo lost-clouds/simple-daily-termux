@@ -20,7 +20,7 @@ func (s *Service) List(ctx context.Context) ([]*Event, error) {
 }
 
 func (s *Service) Create(ctx context.Context, title string, targetAt time.Time, note string) (*Event, error) {
-	now := time.Now()
+	now := time.Now().UTC()
 	e := &Event{
 		ID:        idgen.New(),
 		Title:     title,
@@ -42,7 +42,7 @@ func (s *Service) Delete(ctx context.Context, id string) error {
 func (s *Service) SyncFromTodo(ctx context.Context, todoID, title string, targetAt time.Time) error {
 	_ = s.repo.DeleteByRef(ctx, todoID)
 
-	now := time.Now()
+	now := time.Now().UTC()
 	e := &Event{
 		ID:        idgen.New(),
 		Title:     title,

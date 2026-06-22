@@ -19,7 +19,7 @@ func NewService(r Repository, countSvc *countdown.Service) *Service {
 }
 
 func (s *Service) Create(ctx context.Context, title, notes, taskType string, deadlineAt *time.Time) (*Todo, error) {
-	now := time.Now()
+	now := time.Now().UTC()
 	pri := CalcPriority(deadlineAt, taskType)
 	t := &Todo{
 		ID: idgen.New(), Title: title, Notes: notes, Status: StatusPending,
@@ -42,9 +42,9 @@ func (s *Service) Get(ctx context.Context, id string) (*Todo, error) {
 }
 
 func (s *Service) Update(ctx context.Context, t *Todo) error {
-	t.UpdatedAt = time.Now()
+	t.UpdatedAt = time.Now().UTC()
 	if t.Status == StatusDone && t.CompletedAt == nil {
-		now := time.Now(); t.CompletedAt = &now
+		now := time.Now().UTC(); t.CompletedAt = &now
 	}
 	t.Priority = CalcPriority(t.DeadlineAt, t.TaskType)
 	old, err := s.repo.Get(ctx, t.ID)

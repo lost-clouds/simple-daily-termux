@@ -1,4 +1,5 @@
 /* Summary card - used in Blog-termux integration (class prefixed tu- to avoid conflicts) */
+/* ⚠️ 与 ../../blog-termux-index.html 内联 <style> 块保持同步，修改此处时同步更新另一处 */
 .tu-summary-card {
     grid-column: span 4;
 }

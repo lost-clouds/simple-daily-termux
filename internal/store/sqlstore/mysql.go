@@ -7,7 +7,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-func NewMySQL(dsn string) (*SQLStore, error) {
+func NewMySQL(dsn, timezone string) (*SQLStore, error) {
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("mysql: open: %w", err)
@@ -18,7 +18,7 @@ func NewMySQL(dsn string) (*SQLStore, error) {
 		return nil, fmt.Errorf("mysql: ping: %w", err)
 	}
 
-	s := &SQLStore{db: db, driver: "mysql"}
+	s := &SQLStore{db: db, driver: "mysql", timezone: timezone}
 	if err := s.migrateMySQL(); err != nil {
 		db.Close()
 		return nil, err

@@ -9,7 +9,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-func NewSQLite(path string) (*SQLStore, error) {
+func NewSQLite(path, timezone string) (*SQLStore, error) {
 	dir := filepath.Dir(path)
 	if dir != "." {
 		if err := os.MkdirAll(dir, 0755); err != nil {
@@ -28,7 +28,7 @@ func NewSQLite(path string) (*SQLStore, error) {
 		return nil, fmt.Errorf("sqlite: ping: %w", err)
 	}
 
-	s := &SQLStore{db: db, driver: "sqlite"}
+	s := &SQLStore{db: db, driver: "sqlite", timezone: timezone}
 	if err := s.migrate(); err != nil {
 		db.Close()
 		return nil, err

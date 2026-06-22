@@ -1,6 +1,7 @@
 package diary
 
 import (
+	"log"
 	"math"
 	"regexp"
 	"strconv"
@@ -70,6 +71,7 @@ func parseLedgerBlock(block string) *ParsedLedgerEntry {
 	}
 
 	if !hasRequired || e.AmountCents == 0 || e.Category == "" {
+		log.Printf("ledgerparser: skipping invalid block (type=%q amount=%d category=%q)", e.Type, e.AmountCents, e.Category)
 		return nil
 	}
 	return e

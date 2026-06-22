@@ -1,3 +1,4 @@
+// Todo CRUD: list with filters, create/edit/delete, daily task auto-generation.
 import { API } from './constants.js';
 import { esc } from './utils.js';
 
@@ -92,7 +93,10 @@ async function editTodo(id) {
   document.getElementById('todoNotes').value=t.notes||'';
   document.getElementById('todoTaskType').value=t.task_type||'one_time';
   var st=document.getElementById('todoStatus'); if(st) st.value=t.status||'pending';
-  document.getElementById('todoDeadline').value=t.deadline_at?t.deadline_at.substring(0,16):'';
+  if(t.deadline_at){
+    var d=new Date(t.deadline_at), pad=function(n){return String(n).padStart(2,'0');};
+    document.getElementById('todoDeadline').value=d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())+'T'+pad(d.getHours())+':'+pad(d.getMinutes());
+  } else document.getElementById('todoDeadline').value='';
   document.getElementById('todoFormWrap').style.display='block';
 }
 

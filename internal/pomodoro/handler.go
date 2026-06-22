@@ -77,8 +77,14 @@ func (h *Handler) StartRest(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetToday(w http.ResponseWriter, r *http.Request) {
-	focus, _ := h.svc.GetTodayMinutes(r.Context(), h.timezone)
-	rest, _ := h.svc.GetTodayRestMinutes(r.Context(), h.timezone)
+	focus, err := h.svc.GetTodayMinutes(r.Context(), h.timezone)
+	if err != nil {
+		focus = 0
+	}
+	rest, err := h.svc.GetTodayRestMinutes(r.Context(), h.timezone)
+	if err != nil {
+		rest = 0
+	}
 	httputil.JSON(w, http.StatusOK, map[string]int{"total_minutes": focus, "rest_minutes": rest})
 }
 

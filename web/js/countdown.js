@@ -1,3 +1,4 @@
+// Countdown events: manual creation, days-left display, urgency styling.
 import { API } from './constants.js';
 import { esc } from './utils.js';
 

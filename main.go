@@ -41,9 +41,9 @@ func main() {
 	var st sqlstore.Store
 	switch cfg.Database.Driver {
 	case "sqlite":
-		st, err = sqlstore.NewSQLite(cfg.Database.SQLite.Path)
+		st, err = sqlstore.NewSQLite(cfg.Database.SQLite.Path, cfg.Database.Timezone)
 	case "mysql":
-		st, err = sqlstore.NewMySQL(cfg.Database.MySQL.DSN)
+		st, err = sqlstore.NewMySQL(cfg.Database.MySQL.DSN, cfg.Database.Timezone)
 	default:
 		log.Fatalf("unsupported database driver: %s", cfg.Database.Driver)
 	}
@@ -79,7 +79,14 @@ func main() {
 		fmt.Fprint(w, `{"ok":true,"data":{"status":"healthy"}}`)
 	})
 
-	// /simpledaily/ redirects to main SPA (for Blog-termux card link)
+	// /simpledaily/ redirects to main SPA.
+	// Two scenarios:
+	//   1. Direct access (dev): browser hits http://127.0.0.1:8090/simpledaily/
+	//      → redirects to / → serves SPA. Works.
+	//   2. Nginx proxy (prod): nginx strips the /simpledaily/ prefix via
+	//      "proxy_pass http://127.0.0.1:8090/;", so Go receives "/" directly
+	//      and this handler never fires. The SPA is served by the static file
+	//      handler below.
 	mux.HandleFunc("/simpledaily/", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusMovedPermanently)
 	})

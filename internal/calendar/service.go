@@ -107,7 +107,7 @@ func (s *Service) GetMonthView(ctx context.Context, year, month int) (*MonthView
 }
 
 func (s *Service) CreateEvent(ctx context.Context, title string, startAt time.Time, endAt *time.Time, allDay bool, note string) (*Event, error) {
-	now := time.Now()
+	now := time.Now().UTC()
 	e := &Event{
 		ID:        idgen.New(),
 		Title:     title,

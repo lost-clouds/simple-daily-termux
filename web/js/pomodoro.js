@@ -1,3 +1,4 @@
+// Pomodoro timer: focus/rest sessions with 1-second countdown and today stats.
 import { API } from './constants.js';
 
 'use strict';

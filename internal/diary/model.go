@@ -27,4 +27,5 @@ type Repository interface {
 	GetByDate(ctx context.Context, date string) (*Entry, error)
 	Upsert(ctx context.Context, entry *Entry) error
 	ListMonth(ctx context.Context, year, month int) ([]*MonthEntry, error)
+	ListMonthFull(ctx context.Context, year, month int) ([]*Entry, error)
 }
