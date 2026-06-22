@@ -79,8 +79,8 @@ func main() {
 		fmt.Fprint(w, `{"ok":true,"data":{"status":"healthy"}}`)
 	})
 
-	// /update/ redirects to main SPA (for Blog-termux card link)
-	mux.HandleFunc("/update/", func(w http.ResponseWriter, r *http.Request) {
+	// /simpledaily/ redirects to main SPA (for Blog-termux card link)
+	mux.HandleFunc("/simpledaily/", func(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusMovedPermanently)
 	})
 

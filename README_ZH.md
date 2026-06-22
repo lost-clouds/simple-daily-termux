@@ -194,7 +194,7 @@ bash scripts/smoke.sh
 
 将 [example/integration.conf](example/integration.conf) 的内容添加到 Blog-termux 的 nginx `server {}` 块中。添加两个 location：
 
-- `/update/` → 反代到 Go SPA
+- `/simpledaily/` → 反代到 Go SPA
 - `/api/summary` → 仪表盘卡片数据端点
 
 **Step 3 — 部署集成文件：**
@@ -348,7 +348,7 @@ curl -X PUT http://127.0.0.1:8090/api/settings/opening_savings_cents \
 
 **Q: 通过 nginx 访问 CSS/JS 加载失败？**
 
-SPA 使用相对路径。确保 nginx 有 `location /update/ { proxy_pass http://127.0.0.1:8090/; }`。
+SPA 使用相对路径。确保 nginx 有 `location /simpledaily/ { proxy_pass http://127.0.0.1:8090/; }`。
 
 ---
 

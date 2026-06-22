@@ -231,7 +231,7 @@ See [example/standalone.conf](example/standalone.conf).
 
 Copy the content of [example/integration.conf](example/integration.conf) into Blog-termux's nginx `server {}` block. This adds two locations:
 
-- `/update/` → proxies to the Go SPA
+- `/simpledaily/` → proxies to the Go SPA
 - `/api/summary` → data endpoint for the dashboard card
 
 **Step 3 — Deploy the integration files:**
@@ -385,7 +385,7 @@ Edit `config.json`: set `driver` to `mysql` and provide `mysql.dsn`. Restart. Ta
 
 **Q: CSS/JS not loading through nginx?**
 
-The SPA uses relative paths. Ensure nginx has `location /update/ { proxy_pass http://127.0.0.1:8090/; }`.
+The SPA uses relative paths. Ensure nginx has `location /simpledaily/ { proxy_pass http://127.0.0.1:8090/; }`.
 
 ---
 

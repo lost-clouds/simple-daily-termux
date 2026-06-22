@@ -1,6 +1,6 @@
 'use strict';
-// NOTE: paths are relative to work through nginx /update/ proxy.
-// When SPA is served at /update/, relative 'api/todos' resolves to /update/api/todos
+// NOTE: paths are relative to work through nginx /simpledaily/ proxy.
+// When SPA is served at /simpledaily/, relative 'api/todos' resolves to /simpledaily/api/todos
 const API = {
     TODOS:      'api/todos',
     COUNTDOWN:  'api/countdown',
