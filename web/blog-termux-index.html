@@ -270,8 +270,53 @@
     <script src="lib/marked.min.js?v=2"></script>
     <script type="module" src="js/main.js?v=3"></script>
     <script type="module">
-        import { UpdateWidget } from './js/update-widget.js';
-        UpdateWidget.init();
+        // simple-daily-termux summary card widget (inline)
+        let _swTimer = null;
+        let _swFetching = false;
+
+        function _swSet(id, text) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = text || '--';
+        }
+
+        async function _swFetch() {
+            if (_swFetching) return;
+            _swFetching = true;
+            try {
+                const resp = await fetch('/api/summary');
+                if (!resp.ok) throw new Error('HTTP ' + resp.status);
+                const json = await resp.json();
+                if (!json.ok || !json.data) return;
+                const d = json.data;
+                const led = d.ledger || {};
+                _swSet('sumExpense',  '¥' + (led.expense || 0).toFixed(2));
+                _swSet('sumIncome',   '¥' + (led.income || 0).toFixed(2));
+                _swSet('sumBalance',  '¥' + (led.balance || 0).toFixed(2));
+                _swSet('sumSavings',  '¥' + (led.savings || 0).toFixed(2));
+                _swSet('sumFocus',    (d.focus_today_minutes || 0) + ' 分钟');
+                const cds = d.countdown || [];
+                _swSet('sumCountdown', cds.length > 0 ? cds[0].title + ' ' + cds[0].days_left + '天' : '无');
+            } catch (err) {
+                console.warn('SummaryWidget:', err.message);
+            } finally {
+                _swFetching = false;
+            }
+        }
+
+        function _swStart() {
+            _swFetch();
+            if (_swTimer) clearInterval(_swTimer);
+            _swTimer = setInterval(_swFetch, 30000);
+        }
+
+        function _swStop() {
+            if (_swTimer) { clearInterval(_swTimer); _swTimer = null; }
+        }
+
+        _swStart();
+        document.addEventListener('visibilitychange', function () {
+            document.hidden ? _swStop() : _swStart();
+        });
     </script>
 
 </body>
