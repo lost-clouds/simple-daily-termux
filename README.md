@@ -102,7 +102,7 @@ simple-daily-termux/
 │   ├── index.html               # SPA (6 tabs: home, calendar, todo, pomodoro, diary, countdown)
 │   ├── blog-termux-index.html   # Blog-termux integration HTML (9th dashboard card)
 │   ├── css/  src/*.css + build.sh + style.css
-│   ├── js/   app.js + 7 modules + theme.js + utils.js + update-widget.js
+│   ├── js/   app.js + 7 modules + theme.js + utils.js
 │   └── lib/  marked.min.js
 ├── example/                     # Nginx config templates
 │   ├── standalone.conf          # Independent deployment
@@ -234,12 +234,12 @@ Copy the content of [example/integration.conf](example/integration.conf) into Bl
 - `/simpledaily/` → proxies to the Go SPA
 - `/api/summary` → data endpoint for the dashboard card
 
-**Step 3 — Deploy the integration files:**
+**Step 3 — Deploy the integration file:**
 
 ```bash
 cp web/blog-termux-index.html /path/to/Blog-termux/index.html
-cp web/js/update-widget.js /path/to/Blog-termux/js/update-widget.js
 ```
+The summary card widget is inlined — no separate JS file to deploy.
 
 **Step 4 — Reload nginx:**
 
@@ -381,7 +381,7 @@ Edit `config.json`: set `driver` to `mysql` and provide `mysql.dsn`. Restart. Ta
 
 1. Is simple-daily-termux running? `curl http://127.0.0.1:8090/api/health`
 2. Are the nginx proxy rules added? `curl http://127.0.0.1:7443/api/summary`
-3. Are `blog-termux-index.html` and `update-widget.js` deployed?
+3. Is `blog-termux-index.html` deployed?
 
 **Q: CSS/JS not loading through nginx?**
 

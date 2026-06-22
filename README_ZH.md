@@ -201,8 +201,8 @@ bash scripts/smoke.sh
 
 ```bash
 cp web/blog-termux-index.html /path/to/Blog-termux/index.html
-cp web/js/update-widget.js /path/to/Blog-termux/js/update-widget.js
 ```
+summary 卡片组件已内联到 HTML 中，无需额外部署 JS 文件。
 
 **Step 4 — 重载 nginx：**
 
@@ -344,7 +344,7 @@ curl -X PUT http://127.0.0.1:8090/api/settings/opening_savings_cents \
 
 1. simple-daily-termux 是否运行？`curl http://127.0.0.1:8090/api/health`
 2. nginx 反代规则是否添加？`curl http://127.0.0.1:7443/api/summary`
-3. `blog-termux-index.html` 和 `update-widget.js` 是否部署？
+3. `blog-termux-index.html` 是否已部署？
 
 **Q: 通过 nginx 访问 CSS/JS 加载失败？**
 
